@@ -1,0 +1,2 @@
+
+URL API OVERPASS (toilettes) : http://overpass-api.de/api/interpreter?data=[out:json];(node[amenity=toilets](45.15414,5.677606,45.214077,5.753118););out;
