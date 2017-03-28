@@ -2,3 +2,5 @@
 URL API OVERPASS (toilettes) : http://overpass-api.de/api/interpreter?data=[out:json];(node[amenity=toilets](45.15414,5.677606,45.214077,5.753118););out;
 
 URL API GOOGLE MAPS (GET ADDRESS FROM LAT LNG POSITION) : https://maps.googleapis.com/maps/api/geocode/json?latlng=LATVALUE,LNGVALUE&key=AIzaSyDE99utD1l0leasTivb7AuNw_Qk1DzSY2c
+
+URL MOCK TOILETTES : https://api.ahmetcelikbas.fr/toilettes/mock_liste_toilettes.php
