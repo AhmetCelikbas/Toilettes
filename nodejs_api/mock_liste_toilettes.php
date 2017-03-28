@@ -1,0 +1,69 @@
+<?php
+header("Content-Type: application/json");
+
+echo '
+[
+  {
+    "id": 1,
+    "id_osm": 663871294,
+    "lat": 45.1748168,
+    "lon": 5.7098091,
+    "details": {
+      "name": "Toilettes publiques",
+      "access": "yes",
+      "exist": "yes",
+      "rating": 4,
+      "fee": "no",
+      "male": "yes",
+      "wheelchair": "yes",
+      "drinking_water": "no",
+      "placeType": "restaurant",
+      "address": "grenoble",
+      "picture": "https://api.ahmetcelikbas.fr/toilettes/pictures/1.jpg"
+    },
+    "comments": [
+      {
+        "id": 1,
+        "comment": "example commentary"
+      },
+      {
+        "id": 2,
+        "comment": "commentary"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "id_osm": 663871295,
+    "lat": 45.1748178,
+    "lon": 5.7098011,
+    "details": {
+      "name": "Toilettes publiques 2",
+      "access": "yes",
+      "exist": "yes",
+      "rating": 4,
+      "fee": "no",
+      "male": "yes",
+      "wheelchair": "yes",
+      "drinking_water": "no",
+      "placeType": "public",
+      "address": "grenoble",
+      "picture": "https://api.ahmetcelikbas.fr/toilettes/pictures/2.jpg"
+    },
+    "comments": [
+      {
+        "id": 1,
+        "comment": "example commentary"
+      },
+      {
+        "id": 2,
+        "comment": "commentary"
+      }
+    ]
+  }
+]
+';
+
+
+
+
