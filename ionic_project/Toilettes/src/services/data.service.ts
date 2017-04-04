@@ -11,8 +11,15 @@ export class DataService {
   }
 
 
-  public get(verb:string) {
-    return this.http.get(this.config.apiUrl + verb).map ( 
+  public get(verb:string, toiletSearchArea: any) {
+    return this.http.get( this.config.apiUrl + 
+                          verb + 
+                          "/" + 
+                          toiletSearchArea['southWest']['lat'] + "/" + 
+                          toiletSearchArea['southWest']['lng'] + "/" + 
+                          toiletSearchArea['northEast']['lat'] + "/" + 
+                          toiletSearchArea['northEast']['lng']
+                        ).map ( 
       res => res.json()
     )
   }

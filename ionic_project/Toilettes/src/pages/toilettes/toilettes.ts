@@ -24,9 +24,9 @@ export class ToilettesPage {
   private userPosition: GoogleMapsLatLng;
   private checkinPosition: GoogleMapsLatLng;
   private cameraPos: CameraPosition;
-
-
+  
   private toilets : Array<Object>;
+
 
   constructor(  public platform: Platform, 
                 public navCtrl: NavController,
@@ -52,7 +52,24 @@ export class ToilettesPage {
 
 
   private loadNearbyToilets() {
-    this.data.get(this.config.apiVerbs.toilets).subscribe (
+
+    // calculate nearby area
+    // this.userPosition = new GoogleMapsLatLng(45.185757, 5.749789);
+
+    let toiletSearchArea = {
+      southWest : {
+        lat : this.userPosition.lat - 0.026199,
+        lng : this.userPosition.lng - 0.064029
+      },
+      northEast : {
+        lat : this.userPosition.lat + 0.026199,
+        lng : this.userPosition.lng + 0.064029
+      }
+    }
+
+    console.log(toiletSearchArea);
+
+    this.data.get(this.config.apiVerbs.toilets, toiletSearchArea).subscribe (
       apiRes => this.toilets = apiRes,
       error => {
         console.log("error loading toilets");
@@ -64,20 +81,16 @@ export class ToilettesPage {
 
         for(let toilet in this.toilets){
 
-            // // ADD MARKER ON MAP
+            // ADD MARKER ON MAP
             // this.map.addMarker({
-            //   'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lng']),
-            //   'title': this.toilets[toilet]['user']['name'],
-            //   "snippet": this.toilets[toilet]['formatted_address'],
+            //   'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lon']),
+            //   'title': this.toilets[toilet]['name'],
+            //   "snippet": "",
             //   'styles' : {
             //     'text-align': 'center',
             //     'font-weight': 'bold'
             //   }
             // });
-
-
-
-            
 
         }
         
@@ -132,7 +145,9 @@ export class ToilettesPage {
       zoom: 14
     };
     // move the map's camera to position
-    this.map.moveCamera(this.cameraPos);
+    this.map.moveCamera(this.cameraPos).then(() => {
+      this.loadNearbyToilets();
+    });
   }
 
 }
