@@ -6,15 +6,15 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('toilets.db');
 db.serialize(() => {
 	db.run(`CREATE TABLE IF NOT EXISTS toilets(
-		id INT PRIMARY KEY AUTO_INCREMENT,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		id_osm BIGINT,
 		lat REAL NOT NULL,
 		lon REAL NOT NULL,
 		picture VARCHAR(15)
 	)`);
 	db.run(`CREATE TABLE IF NOT EXISTS details(
-		id INT PRIMARY KEY AUTO_INCREMENT,
-		id_toilet INT,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id_toilet INTEGER,
 		name VARCHAR(40),
 		access BOOLEAN,
 		exist BOOLEAN,
@@ -28,15 +28,55 @@ db.serialize(() => {
 	)`);
 
 	db.run(`CREATE TABLE IF NOT EXISTS comments(
-		id INT PRIMARY KEY AUTO_INCREMENT,
-		id_toilet INT,
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id_toilet INTEGER,
 		comment TEXT
 	)`);
 });
 db.close();
 
 
-app.get('/api/overpass/:lat/:lon', (req, res) => {
+/**
+ * get an instance of the express Router
+ */
+var router = express.Router();
+
+/**
+ * all of our routes will be prefixed with /v1/api
+ */
+app.use('/v1/api', router);
+
+/**
+ * test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+ */
+router.get('/', function(req, res) {
+    res.json({ message: 'hooray! welcome to our api!' });   
+});
+
+
+router.route('/bears')
+
+    // create a bear (accessed at POST http://localhost:8080/api/bears)
+    .post(function(req, res) {
+        
+        //...
+        
+    })
+
+    // get all the bears (accessed at GET http://localhost:8080/v1/api/bears)
+    .get(function(req, res) {
+        Bear.find(function(err, bears) {
+            if (err)
+                res.send(err);
+
+            res.json(bears);
+        });
+    });
+
+/**
+ * get all toilets around the given location
+ */
+router.get('/toilets/:lat/:lon', (req, res) => {
 	let params = {lat: req.params.lat, lon: req.params.lon}
 	let url = {
 		path: 'http://overpass-api.de/api/interpreter?[out:json];(node[amenity=toilets](45.15414,5.677606,45.214077,5.753118););out;'
@@ -64,6 +104,13 @@ app.get('/api/overpass/:lat/:lon', (req, res) => {
 		db.close();
 
 	}
+});
+
+/**
+ * get a specific toilet
+ */
+router.get('/toilet/:id', (req, res) => {
+
 });
 
 app.use((req, res) => {
