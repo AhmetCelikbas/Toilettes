@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-
 import {  Platform, 
           NavController 
       } from 'ionic-angular';
-
 import {  GoogleMap,
           GoogleMapsEvent,
           GoogleMapsLatLng,
@@ -11,6 +9,9 @@ import {  GoogleMap,
           GoogleMapsMarkerOptions,
           GoogleMapsMarker
         } from 'ionic-native';
+
+import { ConfigService } from '../../services/config.service';
+
 
 @Component({
   selector: 'page-toilettes',
@@ -25,12 +26,12 @@ export class ToilettesPage {
   private cameraPos: CameraPosition;
 
   constructor(  public platform: Platform, 
-                public navCtrl: NavController
+                public navCtrl: NavController,
+                private config: ConfigService
                 ) {
     this.geolocationOptions = {
       enableHighAccuracy: true      // Force Google Maps Plugin To locate user with a high accuracy
     };
-
   }
 
 
@@ -45,7 +46,7 @@ export class ToilettesPage {
   }
   
 
-    private loadGoogleMaps() {
+  private loadGoogleMaps() {
     this.map = new GoogleMap(document.getElementById('map'), {
       'backgroundColor': 'white',
       'controls': {
@@ -67,7 +68,6 @@ export class ToilettesPage {
       // this.loadNearbyToilets();
     });
   }
-
 
   private locateUser() {
     this.map.getMyLocation(this.geolocationOptions).then((location) => {
