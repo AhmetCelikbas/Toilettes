@@ -10,6 +10,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { ConfigService } from '../services/config.service';
+import { DataService } from '../services/data.service';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { ConfigService } from '../services/config.service';
     StatusBar,
     SplashScreen,
     ConfigService,
+    DataService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

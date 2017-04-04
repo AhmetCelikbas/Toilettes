@@ -26,6 +26,7 @@ export class ToilettesPage {
   private cameraPos: CameraPosition;
 
 
+  private toilets : Array<Object>;
 
   constructor(  public platform: Platform, 
                 public navCtrl: NavController,
@@ -39,11 +40,11 @@ export class ToilettesPage {
 
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad CheckInsPage');
+    console.log('ionViewDidLoad Toilets');
     
     this.platform.ready().then(() => {
-      this.loadGoogleMaps();
-      // this.loadNearbyToilets();
+      // this.loadGoogleMaps();
+      this.loadNearbyToilets();
       
     });
   }
@@ -51,7 +52,37 @@ export class ToilettesPage {
 
 
   private loadNearbyToilets() {
+    this.data.get(this.config.apiVerbs.toilets).subscribe (
+      apiRes => this.toilets = apiRes,
+      error => {
+        console.log("error loading toilets");
+        console.log(error);
+      },
+      () => {
+        console.log("nearby toilets loaded")
+        console.log(this.toilets);
 
+        for(let toilet in this.toilets){
+
+            // // ADD MARKER ON MAP
+            // this.map.addMarker({
+            //   'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lng']),
+            //   'title': this.toilets[toilet]['user']['name'],
+            //   "snippet": this.toilets[toilet]['formatted_address'],
+            //   'styles' : {
+            //     'text-align': 'center',
+            //     'font-weight': 'bold'
+            //   }
+            // });
+
+
+
+            
+
+        }
+        
+      }
+    )
 
 
   }
