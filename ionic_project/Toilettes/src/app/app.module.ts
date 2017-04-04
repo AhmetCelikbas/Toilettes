@@ -12,6 +12,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { ConfigService } from '../services/config.service';
 import { DataService } from '../services/data.service';
 
+import { Ionic2RatingModule } from 'ionic2-rating';
+
 @NgModule({
   declarations: [
     MyApp,
@@ -21,7 +23,8 @@ import { DataService } from '../services/data.service';
     TabsPage
   ],
   imports: [
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    Ionic2RatingModule // Put ionic2-rating module here
   ],
   bootstrap: [IonicApp],
   entryComponents: [
