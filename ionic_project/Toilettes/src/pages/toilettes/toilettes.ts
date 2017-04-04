@@ -9,8 +9,8 @@ import {  GoogleMap,
           GoogleMapsMarkerOptions,
           GoogleMapsMarker
         } from 'ionic-native';
-
 import { ConfigService } from '../../services/config.service';
+import { DataService } from '../../services/data.service';
 
 
 @Component({
@@ -25,9 +25,12 @@ export class ToilettesPage {
   private checkinPosition: GoogleMapsLatLng;
   private cameraPos: CameraPosition;
 
+
+
   constructor(  public platform: Platform, 
                 public navCtrl: NavController,
-                private config: ConfigService
+                private config: ConfigService,
+                private data: DataService
                 ) {
     this.geolocationOptions = {
       enableHighAccuracy: true      // Force Google Maps Plugin To locate user with a high accuracy
@@ -45,6 +48,14 @@ export class ToilettesPage {
     });
   }
   
+
+
+  private loadNearbyToilets() {
+
+
+
+  }
+
 
   private loadGoogleMaps() {
     this.map = new GoogleMap(document.getElementById('map'), {
