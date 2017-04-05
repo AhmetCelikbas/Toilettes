@@ -5,7 +5,6 @@ module.exports = function(sequelize, DataTypes) {
 		name: DataTypes.STRING,
 		access: DataTypes.BOOLEAN,
 		exist: DataTypes.BOOLEAN,
-		rating: DataTypes.INTEGER,
 		fee: DataTypes.BOOLEAN,
 		male: DataTypes.BOOLEAN,
 		wheelchair: DataTypes.BOOLEAN,

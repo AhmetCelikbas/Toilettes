@@ -59,7 +59,6 @@ app.use('/v1/api', router);
  */
 router.get('/', (req, res) => {
 	res.setHeader("Content-Type", "application/json")
-	// Setting sensor to true
 	res.json({ message: 'hooray! welcome to our api!' });
 });
 
@@ -70,7 +69,7 @@ router.route('/toilets')
 	// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
     .post(formParser, (req, res) => {
 		// getting the address from gps location
-		geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {		
+		geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
 
 			models.Toilet.create({
 					id_osm: req.body.id_osm,
@@ -94,13 +93,12 @@ router.route('/toilets')
 					res.setHeader('Content-Type', 'text/plain');
 					res.end(JSON.stringify(response));
 				
-				}).catch((err) => { 
-					console.log(err); 
+				}).catch((err) => {
+					console.log(err);
 				});
-			}, { sensor: true, language: 'fr' });
+		}, { sensor: true, language: 'fr' });
 
-		res.setHeader('Content-Type', 'text/plain');
-		res.json({message: 'OK'});
+		res.end();
     })
 	// get all the toilets (accessed at GET http://localhost:8080/v1/api/toilets)
     .get((req, res) => {
@@ -268,7 +266,7 @@ router.post('/toilet/:id/details', formParser, (req, res) => {
  * Update a comment (= edit) of specific toilet
  */
 router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comment.update({
+	models.Comments.update({
 		comment: req.body.comment
 	}, {
 		where: { id_toilet: req.params.id }
@@ -284,7 +282,7 @@ router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
  * Get a comment (= edit) of specific toilet
  */
 router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comment.findById(req.params.id).then((comment) => {
+	models.Comments.findById(req.params.id).then((comment) => {
 		res.setHeader('Content-Type', 'application/json');
 		res.json(comment);
 	}).catch((err) => {

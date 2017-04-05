@@ -1,27 +1,30 @@
 'use strict';
 module.exports = {
   up: function(queryInterface, Sequelize) {
-    return queryInterface.createTable('Toilets', {
+    return queryInterface.createTable('Users', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_osm: {
-        type: Sequelize.BIGINT
+      name: {
+        type: DataTypes.STRING
       },
-      id_user: {
-        type: Sequelize.INTEGER
+      email: {
+        type: Sequelize.STRING
       },
-      lat: {
-        type: Sequelize.REAL
-      },
-      lng: {
-        type: Sequelize.REAL
+      password: {
+        type: Sequelize.STRING
       },
       picture: {
         type: Sequelize.STRING
+      },
+      createdAt: {
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,
@@ -34,6 +37,6 @@ module.exports = {
     });
   },
   down: function(queryInterface, Sequelize) {
-    return queryInterface.dropTable('Toilets');
+    return queryInterface.dropTable('Users');
   }
 };
