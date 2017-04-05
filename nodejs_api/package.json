@@ -9,7 +9,13 @@
   "author": "Ahmet Celikbas - Younes El yandouzi",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "fs": "0.0.1-security",
+    "geocoder": "^0.2.3",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "sequelize": "^3.30.4",
     "sqlite": "^2.5.0"
   }
 }
