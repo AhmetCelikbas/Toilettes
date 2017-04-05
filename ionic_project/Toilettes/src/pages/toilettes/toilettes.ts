@@ -43,7 +43,7 @@ export class ToilettesPage {
     console.log('ionViewDidLoad Toilets');
     
     this.platform.ready().then(() => {
-      // this.loadGoogleMaps();
+      this.loadGoogleMaps();
       this.loadNearbyToilets();
       
     });
