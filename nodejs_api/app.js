@@ -1,3 +1,4 @@
+// IMPORTS
 var bodyParser = require('body-parser');
 var sqlite3 = require('sqlite3').verbose();
 var geocoder = require('geocoder');
@@ -6,47 +7,14 @@ var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
 
-// Notre modèle objet géré par l'ORM Sequelize
+/**
+ * Allows to access the database and
+ * make CRUD operations with ORM sequelize
+ */
 var models = require('./models');
 
 // Crée un convertisseur de données de formulaire
 var formParser = bodyParser.urlencoded({ extended: false });
-
-/**
- * Access to the database and
- * create tables if they don't already exist
- */
-/*var db = new sqlite3.Database('./mydb.db');
-db.serialize(() => {
-	db.run(`CREATE TABLE IF NOT EXISTS toilets(
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		id_osm BIGINT,
-		lat REAL NOT NULL,
-		lon REAL NOT NULL,
-		picture VARCHAR(15)
-	)`);
-	db.run(`CREATE TABLE IF NOT EXISTS details(
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		id_toilet INTEGER,
-		name VARCHAR(40),
-		access BOOLEAN,
-		exist BOOLEAN,
-		rating TINYINT CHECK(rating BETWEEN 0 and 5) DEFAULT 0,
-		fee BOOLEAN,
-		male BOOLEAN,
-		wheelchair BOOLEAN,
-		drinking_water BOOLEAN,
-		placeType VARCHAR(20) CHECK(rating IN ('restaurant', 'public', 'shoping center', 'gas station', 'bar')),
-		address VARCHAR(70)
-	)`);
-
-	db.run(`CREATE TABLE IF NOT EXISTS Comments(
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		id_toilet INTEGER,
-		comment TEXT
-	)`);
-});*/
-
 
 /**
  * Get an instance of the express Router
@@ -55,12 +23,42 @@ db.serialize(() => {
 let router = express.Router();
 app.use('/v1/api', router);
 
+let secret = 'Bat0193726485Man';
+
+// route middleware to verify a token
+apiRoutes.use((req, res, next) => {
+	// check header or url parameters or post parameters for token
+	let token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	// decode token if exists
+	if (token) {
+		// verifies secret and checks exp
+		jwt.verify(token, secret, (err, decoded) => {      
+			if (err) {
+				return res.json({ success: false, message: 'Failed to authenticate token.' });    
+			} else {
+				// if everything is good, save to request for use in other routes
+				req.decoded = decoded;
+				next();
+			}
+		});
+	} else {
+		// if there is no token
+		// return an error
+		return res.status(403).send({ 
+			success: false, 
+			message: 'No token provided.' 
+		}); 
+	}
+});
+
+
 /**
  * Test route to make sure everything is working (accessed at GET http://localhost:8080/v1/api)
  */
 router.get('/', (req, res) => {
 	res.setHeader("Content-Type", "application/json")
-	res.json({ message: 'hooray! welcome to our api!' });
+	res.json({ message: 'Yohoho! Welcome to our api!' });
 });
 
 /**
@@ -91,9 +89,7 @@ router.route('/toilets')
 						placeType: req.body.Details.placeType,
 						address: data.results[0].formatted_address
 					}).then((toilet) => {});
-					res.setHeader('Content-Type', 'text/plain');
 					res.end(JSON.stringify(response));
-				
 				}).catch((err) => {
 					console.log(err);
 				});
@@ -121,10 +117,42 @@ router.route('/toilets')
 				console.log('Reception de données...');
 				donneesRecues += data;
 			});
+
 			resOverpass.on('end', () => {
 				console.log('La requete est terminee.');
 				let json = JSON.parse(donneesRecues);
 				let toilets = Array();
+
+				json.forEach((t, index, array) => {
+					models.Toilet.findOne({
+						where: {id_osm: id}
+					}).then((toilet) =>{
+						if (!toilet) {
+							models.Toilet.create({
+								id_osm: req.body.id_osm,
+								lat: req.body.lat,
+								lon: req.body.lon,
+								picture: null
+							}).then((toilet) => {
+								models.Details.create({
+									id_toilet: null,
+									name: null,
+									access: null,
+									exist: null,
+									rating: null,
+									fee: null,
+									male: null,
+									wheelchair: null,
+									drinking_water: null,
+									placeType: null,
+									address: data.results[0].formatted_address
+								}).then((toilet) => {});
+								res.setHeader('Content-Type', 'text/plain');
+								res.end(JSON.stringify(response));
+							})
+						}
+					});
+				});
 
 				models.Toilet.findAll({
 					include: [{ model: models.Details, as: 'Details'}, { model: models.Comment, as: 'Comment'}]
@@ -167,6 +195,7 @@ router.route('/toilets')
 						}						
 					}
 				});
+				res.setHeader("Content-Type", "application/json")
 				res.json(JSON.parse(toilets));
 			});
 		});
@@ -191,32 +220,11 @@ router.route('/toilet/:id')
 				if (toilet == null) {
 					res.json({message: "Toilet not found"});
 				}
-
-				models.Toilet.create({
-					id_osm: req.body.id_osm,
-					lat: req.body.lat,
-					lon: req.body.lon,
-					picture: req.body.picture
-				}).then((toilet) => {
-					models.Details.create({
-						id_toilet: toilet.id,
-						name: req.body.Details.name,
-						access: req.body.Details.access,
-						exist: req.body.Details.exist,
-						rating: req.body.Details.rating,
-						fee: req.body.Details.fee,
-						male: req.body.Details.male,
-						wheelchair: req.body.Details.wheelchair,
-						drinking_water: req.body.Details.drinking_water,
-						placeType: req.body.Details.placeType,
-						address: req.body.Details.address
-					});
-				});
+				res.setHeader("Content-Type", "application/json");
 				res.json(JSON.parse(toilet));
 			}).catch((err) => { 
 				console.log(err);
 			});
-		res.json(JSON.parse(donneesRecues));
 	})
 	.post((req, res) => {
 		models.Toilet.update({
@@ -224,8 +232,7 @@ router.route('/toilet/:id')
 		}, {
 		  where: { id: req.params.id }
 		}).then(() => {
-			res.setHeader('Content-Type', 'text/plain');
-			res.end(JSON.stringify({message: 'The toilet is up-to-date'}));
+			res.end();
 		}).catch((err) => {
 			console.log(err);
 		});
@@ -236,10 +243,7 @@ router.route('/toilet/:id')
  * Get toilet's details
  */
 router.post('/toilet/:id/details', formParser, (req, res) => {
-	models.Toilet.findOne({
-		where:{ id: req.params.id}
-	}).then(() => {
-		models.Toilet.update({
+	models.Details.update({
 			name: req.body.Details.name,
 			access: req.body.Details.access,
 			exist: req.body.Details.exist,
@@ -250,13 +254,11 @@ router.post('/toilet/:id/details', formParser, (req, res) => {
 			drinking_water: req.body.Details.drinking_water,
 			placeType: req.body.Details.placeType
 		}, {
-		  where: { id: req.params.id }
-		})
-		res.setHeader('Content-Type', 'text/plain');
-		res.end(JSON.stringify({message: 'The details are up-to-date'}));
-	}).catch((err) => {
-		console.log(err);
-	});
+		  where: { id_toilet: req.params.id }
+		}).catch((err) => {
+			console.log(err);
+		});
+		res.end();
 });
 
 
@@ -329,7 +331,7 @@ router.get('/toilet/:id/comments', (req, res) => {
 /**
  * Register a new user
  */
-router.get('/signup', (req, res) => {
+router.post('/signup', (req, res) => {
 	models.User.create({
 		name: req.body.name,
 		email: req.body.email,
@@ -356,7 +358,7 @@ router.get('/signup', (req, res) => {
 /**
  * Identify user with token if login is not empty and correct
  */
-router.get('/authenticate', (req, res) => {
+router.post('/authenticate', (req, res) => {
 	models.User.findOne({
 		where:{ email: req.body.email, password: req.body.password }
 	}).then((user) => {
@@ -365,12 +367,12 @@ router.get('/authenticate', (req, res) => {
 		} else if (user.email != req.body.email && user.password != req.body.password) {
 			res.json({ success: false, message: 'Authentication failed. Wrong login.' });
 		}
-		var token = jwt.sign(user, app.get('superSecret'), {
+		var token = jwt.sign(user, secret, {
           expiresInMinutes: 1440 // expires in 24 hours
         });
 
         // return the information including token as JSON
-        res.json({ success: true, message: 'Enjoy your token!', token: token });
+        res.json({ token: token });
 	}).catch((err) => {
 		console.log(err);
 	});
@@ -380,44 +382,27 @@ router.get('/authenticate', (req, res) => {
  * Get a user
  */
 router.get('/user/:id', (req, res) => {
-	
+	models.User.findOne({
+		where:{ id: req.params.id}
+	}).then(() => {
+
+	});
 });
 
 /**
  * Update user data
  */
-router.get('/user/:id', (req, res) => {
-	
+router.post('/user/:id', (req, res) => {
+	models.Comments.update({
+		comment: req.body.comment
+	}, {
+		where: { id_toilet: req.params.id }
+	}).then(() => {
+		res.end();
+	}).catch((err) => {
+		console.log(err);
+	});
 });
-
-
-// route middleware to verify a token
-apiRoutes.use((req, res, next) => {
-	// check header or url parameters or post parameters for token
-	var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-	// decode token if exists
-	if (token) {
-		// verifies secret and checks exp
-		jwt.verify(token, app.get('superSecret'), (err, decoded) => {      
-			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.' });    
-			} else {
-				// if everything is good, save to request for use in other routes
-				req.decoded = decoded;
-				next();
-			}
-		});
-	} else {
-		// if there is no token
-		// return an error
-		return res.status(403).send({ 
-			success: false, 
-			message: 'No token provided.' 
-		}); 
-	}
-});
-
 
 
 app.use((req, res) => {
