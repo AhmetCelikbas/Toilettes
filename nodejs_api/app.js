@@ -330,14 +330,50 @@ router.get('/toilet/:id/comments', (req, res) => {
  * Register a new user
  */
 router.get('/signup', (req, res) => {
-	
+	models.User.create({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password,
+		picture: req.body.picture,
+		createdAt: Date.now,
+		updatedAt: null
+	}).then(() => {
+		// on create user, create a token
+		let token = jwt.sign(user, app.get('superSecret'), {
+          expiresInMinutes: 1440 // expires in 24 hours
+        });
+		// return the information including token as JSON
+        res.json({
+          success: true,
+          message: 'Enjoy your token!',
+          token: token
+        });
+	}).catch((err) => {
+		console.log(err);
+	});
 });
 
 /**
  * Identify user
  */
 router.get('/login', (req, res) => {
-	
+	models.User.findOne({
+		where:{ email: req.body.email, password: req.body.password }
+	}).then((user) => {
+		if (!user) {
+			res.json({ success: false, message: 'Authentication failed. User not found.' });
+		} else if (user.email != req.body.email && user.password != req.body.password) {
+			res.json({ success: false, message: 'Authentication failed. Wrong login.' });
+		}
+		var token = jwt.sign(user, app.get('superSecret'), {
+          expiresInMinutes: 1440 // expires in 24 hours
+        });
+
+        // return the information including token as JSON
+        res.json({ success: true, message: 'Enjoy your token!', token: token });
+	}).catch((err) => {
+		console.log(err);
+	});
 });
 
 /**
@@ -370,6 +406,35 @@ router.get('/user/:id', (req, res) => {
 			console.log("User id : "+row.id, row.dt);
 		});
 	});*/
+
+
+// route middleware to verify a token
+apiRoutes.use(function(req, res, next) {
+	// check header or url parameters or post parameters for token
+	var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+	// decode token if exists
+	if (token) {
+		// verifies secret and checks exp
+		jwt.verify(token, app.get('superSecret'), function(err, decoded) {      
+			if (err) {
+				return res.json({ success: false, message: 'Failed to authenticate token.' });    
+			} else {
+				// if everything is good, save to request for use in other routes
+				req.decoded = decoded;
+				next();
+			}
+		});
+	} else {
+		// if there is no token
+		// return an error
+		return res.status(403).send({ 
+			success: false, 
+			message: 'No token provided.' 
+		}); 
+	}
+});
+
 
 
 app.use((req, res) => {
