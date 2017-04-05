@@ -2,6 +2,7 @@ var bodyParser = require('body-parser');
 var sqlite3 = require('sqlite3').verbose();
 var geocoder = require('geocoder');
 var http = require('http');
+var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
 
@@ -320,6 +321,38 @@ router.get('/toilet/:id/comments', (req, res) => {
 	});
 });
 
+
+
+/* =======================================================================
+ * 								USER SECTION
+ * ======================================================================= */
+/**
+ * Register a new user
+ */
+router.get('/signup', (req, res) => {
+	
+});
+
+/**
+ * Identify user
+ */
+router.get('/login', (req, res) => {
+	
+});
+
+/**
+ * Get a user
+ */
+router.get('/user/:id', (req, res) => {
+	
+});
+
+/**
+ * Update user data
+ */
+router.get('/user/:id', (req, res) => {
+	
+});
 
 	/*db.serialize(function() {
 		db.run("CREATE TABLE user (id INT, dt TEXT)");
