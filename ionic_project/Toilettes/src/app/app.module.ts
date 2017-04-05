@@ -2,35 +2,43 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
-import { ContactPage } from '../pages/contact/contact';
-import { HomePage } from '../pages/home/home';
+import { AddPage } from '../pages/add/add';
+import { ToilettesPage } from '../pages/toilettes/toilettes';
 import { TabsPage } from '../pages/tabs/tabs';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+import { ConfigService } from '../services/config.service';
+import { DataService } from '../services/data.service';
+
+import { Ionic2RatingModule } from 'ionic2-rating';
+
 @NgModule({
   declarations: [
     MyApp,
     AboutPage,
-    ContactPage,
-    HomePage,
+    AddPage,
+    ToilettesPage,
     TabsPage
   ],
   imports: [
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    Ionic2RatingModule // Put ionic2-rating module here
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
     AboutPage,
-    ContactPage,
-    HomePage,
+    AddPage,
+    ToilettesPage,
     TabsPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
+    ConfigService,
+    DataService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

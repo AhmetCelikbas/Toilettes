@@ -1,0 +1,20 @@
+page-add {
+
+    .note {
+        padding-left: 11px;
+    }
+    ul {
+        padding: 0px;
+        margin: 0px;
+        &.rating li {
+            padding: 0px 5px !important;
+            background: none;
+            color: #ffb400;
+
+            ion-icon {
+            font-size: 21px;
+            }
+        }
+    }
+
+}
