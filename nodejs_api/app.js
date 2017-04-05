@@ -231,7 +231,7 @@ router.route('/toilet/:id')
 			picture: req.body.picture
 		}, {
 		  where: { id: req.params.id }
-		}).then(() => {
+		}).then((toilet) => {
 			res.end();
 		}).catch((err) => {
 			console.log(err);
@@ -339,17 +339,13 @@ router.post('/signup', (req, res) => {
 		picture: req.body.picture,
 		createdAt: Date.now,
 		updatedAt: null
-	}).then(() => {
+	}).then((user) => {
 		// on create user, create a token
 		let token = jwt.sign(user, app.get('superSecret'), {
           expiresInMinutes: 1440 // expires in 24 hours
         });
 		// return the information including token as JSON
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
-        });
+        res.json({token: token});
 	}).catch((err) => {
 		console.log(err);
 	});
@@ -382,26 +378,39 @@ router.post('/authenticate', (req, res) => {
  * Get a user
  */
 router.get('/user/:id', (req, res) => {
-	models.User.findOne({
-		where:{ id: req.params.id}
-	}).then(() => {
-
-	});
+	if (req.decoded) {
+		models.User.findOne({
+			where:{ id: req.decoded.id }
+		}).then((user) => {
+			if (!user) {
+				res.json({ success: false, message: 'Failed to find user' });
+			} 
+			res.setHeader("Content-Type", "application/json");
+			res.json(user);
+		}).catch((err) => {
+			console.log(err);
+		});
+	}
 });
 
 /**
  * Update user data
  */
 router.post('/user/:id', (req, res) => {
-	models.Comments.update({
-		comment: req.body.comment
-	}, {
-		where: { id_toilet: req.params.id }
-	}).then(() => {
-		res.end();
-	}).catch((err) => {
-		console.log(err);
-	});
+	if (req.decoded) {
+		models.User.update({
+			name: DataTypes.STRING,
+			picture: DataTypes.STRING,
+			updatedAt: DataTypes.DATE
+		}, {
+			where: { id: req.decoded.id }
+		}).then((user) => {
+			res.setHeader("Content-Type", "application/json");
+			res.json(user);
+		}).catch((err) => {
+			console.log(err);
+		});
+	}
 });
 
 
