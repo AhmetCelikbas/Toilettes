@@ -233,6 +233,9 @@ router.route('/toilet/:id')
 });
 
 
+/**
+ * Get toilet's details
+ */
 router.post('/toilet/:id/details', formParser, (req, res) => {
 	models.Toilet.findOne({
 		where:{ id: req.params.id}
@@ -257,17 +260,20 @@ router.post('/toilet/:id/details', formParser, (req, res) => {
 	});
 });
 
+
+/* =======================================================================
+ * 							COMMENT SECTION
+ * ======================================================================= */
 /**
  * Update a comment (= edit) of specific toilet
  */
 router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comment.create({
+	models.Comment.update({
 		comment: req.body.comment
 	}, {
 		where: { id_toilet: req.params.id }
 	}).then(() => {
-		res.setHeader('Content-Type', 'text/plain');
-		res.end(JSON.stringify({message: 'The comment was created up-to-date'}));
+		res.end();
 	}).catch((err) => {
 		console.log(err);
 	});
@@ -278,11 +284,7 @@ router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
  * Get a comment (= edit) of specific toilet
  */
 router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comment.findById(req.params.id).then((data) => {
-		let comment = {
-			id_toilet: data.id_toilet,
-			comment: data.comment
-		};
+	models.Comment.findById(req.params.id).then((comment) => {
 		res.setHeader('Content-Type', 'application/json');
 		res.json(comment);
 	}).catch((err) => {
@@ -294,23 +296,22 @@ router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
 /**
  * Add a new comment
  */
-router.post('/toilet/:id/comment', formParser, (req, res) => {
+router.post('/toilet/:id/comments', formParser, (req, res) => {
 	models.Comments.create({
 		id_toilet: req.params.id,
 		comment: req.body.comment
 	}).then(() => {
-		res.setHeader('Content-Type', 'text/plain');
-		res.end(JSON.stringify({message: 'The comment was created'}));
+		res.end();
 	}).catch((err) => {
 		console.log(err);
 	});
-})
+});
 
 
 /**
  * Get all comments of specific toilet
  */
-router.get('/toilet/:id/comment', (req, res) => {
+router.get('/toilet/:id/comments', (req, res) => {
 	models.Comments.findAll({
 		where:{ id_toilet: req.params.id }
 	}).then((comments) => {
