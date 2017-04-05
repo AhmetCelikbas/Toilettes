@@ -7,6 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 		exist: DataTypes.BOOLEAN,
 		fee: DataTypes.BOOLEAN,
 		male: DataTypes.BOOLEAN,
+		female: DataTypes.BOOLEAN,
 		wheelchair: DataTypes.BOOLEAN,
 		drinking_water: DataTypes.BOOLEAN,
 		placeType: {
