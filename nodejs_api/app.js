@@ -354,9 +354,9 @@ router.get('/signup', (req, res) => {
 });
 
 /**
- * Identify user
+ * Identify user with token if login is not empty and correct
  */
-router.get('/login', (req, res) => {
+router.get('/authenticate', (req, res) => {
 	models.User.findOne({
 		where:{ email: req.body.email, password: req.body.password }
 	}).then((user) => {
@@ -390,33 +390,16 @@ router.get('/user/:id', (req, res) => {
 	
 });
 
-	/*db.serialize(function() {
-		db.run("CREATE TABLE user (id INT, dt TEXT)");
-		
-			var stmt = db.prepare("INSERT INTO user VALUES (?,?)");
-			for (var i = 0; i < 10; i++) {
-				
-			var d = new Date();
-			var n = d.toLocaleTimeString();
-			stmt.run(i, n);
-		}  
-		stmt.finalize();
-		
-		db.each("SELECT lat, lon, picture FROM toilets", function(err, row) {
-			console.log("User id : "+row.id, row.dt);
-		});
-	});*/
-
 
 // route middleware to verify a token
-apiRoutes.use(function(req, res, next) {
+apiRoutes.use((req, res, next) => {
 	// check header or url parameters or post parameters for token
 	var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
 	// decode token if exists
 	if (token) {
 		// verifies secret and checks exp
-		jwt.verify(token, app.get('superSecret'), function(err, decoded) {      
+		jwt.verify(token, app.get('superSecret'), (err, decoded) => {      
 			if (err) {
 				return res.json({ success: false, message: 'Failed to authenticate token.' });    
 			} else {
