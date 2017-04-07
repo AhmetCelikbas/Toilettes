@@ -27,8 +27,10 @@ let secret = 'Bat0193726485Man';
 
 // route middleware to verify a token
 app.use((req, res, next) => {
+	// if(req.)
 	// check header or url parameters or post parameters for token
-	let token = req.body.token || req.query.token || req.headers['x-access-token'];
+	// let token = req.body.token || req.query.token || req.headers['x-access-token'];
+	let token = req.headers['Authorization'];
 
 	// decode token if exists
 	if (token) {
