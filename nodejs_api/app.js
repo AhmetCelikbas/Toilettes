@@ -32,25 +32,29 @@ app.use((req, res, next) => {
 	// let token = req.body.token || req.query.token || req.headers['x-access-token'];
 	let token = req.headers['Authorization'];
 
-	// decode token if exists
-	if (token) {
-		// verifies secret and checks exp
-		jwt.verify(token, secret, (err, decoded) => {      
-			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.' });    
-			} else {
-				// if everything is good, save to request for use in other routes
-				req.decoded = decoded;
-				next();
-			}
-		});
+	if(req.method == "POST") {
+		// decode token if exists
+		if (token) {
+			// verifies secret and checks exp
+			jwt.verify(token, secret, (err, decoded) => {      
+				if (err) {
+					return res.json({ success: false, message: 'Failed to authenticate token.' });    
+				} else {
+					// if everything is good, save to request for use in other routes
+					req.decoded = decoded;
+					next();
+				}
+			});
+		} else {
+			// if there is no token
+			// return an error
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			}); 
+		}
 	} else {
-		// if there is no token
-		// return an error
-		return res.status(403).send({ 
-			success: false, 
-			message: 'No token provided.' 
-		}); 
+		next();
 	}
 });
 
@@ -318,6 +322,8 @@ router.get('/toilet/:id/comments', (req, res) => {
 	models.Comments.findAll({
 		where:{ id_toilet: req.params.id }
 	}).then((comments) => {
+
+
 		res.setHeader('Content-Type', 'application/json');
 		res.json(comments);
 	}).catch((err) => {
