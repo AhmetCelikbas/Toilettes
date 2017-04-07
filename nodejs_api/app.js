@@ -26,7 +26,7 @@ app.use('/v1/api', router);
 let secret = 'Bat0193726485Man';
 
 // route middleware to verify a token
-apiRoutes.use((req, res, next) => {
+app.use((req, res, next) => {
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'];
 
