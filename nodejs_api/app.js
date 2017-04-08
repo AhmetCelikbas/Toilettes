@@ -403,12 +403,22 @@ router.post('/authenticate', (req, res) => {
 		} else if (user.email != req.body.email && user.password != req.body.password) {
 			res.json({ success: false, message: 'Authentication failed. Wrong login.' });
 		}
-		var token = jwt.sign(user, secret, {
-          expiresInMinutes: 1440 // expires in 24 hours
-        });
+		let token = jwt.sign(
+			{
+				name: user.name,
+				email: user.email,
+				picture: user.picture,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt
+			}, 
+			secret, 
+			{
+				expiresIn: 86400 // expires in 24 hours (60sec * 60 Min * 24 hours)
+			}
+		);
 
         // return the information including token as JSON
-        res.json({ token: token });
+        res.json({ success: true, message: 'Log in successfully.', token: token });
 	}).catch((err) => {
 		console.log(err);
 	});
