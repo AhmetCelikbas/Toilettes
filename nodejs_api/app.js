@@ -16,42 +16,50 @@ var models = require('./models');
 // Crée un convertisseur de données de formulaire
 var formParser = bodyParser.urlencoded({ extended: false });
 
+// Support encoded bodies
+app.use(formParser);
+
 /**
  * Get an instance of the express Router
  * and set '/v1/api' as prefix for all routes 
  */
 let router = express.Router();
-app.use('/v1/api', router);
+var routerBasePrefix = '/v1/api';
+app.use(routerBasePrefix, router);
 
 let secret = 'Bat0193726485Man';
 
 // route middleware to verify a token
 app.use((req, res, next) => {
-	// if(req.)
+	
 	// check header or url parameters or post parameters for token
-	// let token = req.body.token || req.query.token || req.headers['x-access-token'];
 	let token = req.headers['Authorization'];
-
+	// We want users to be authenticated for post methods only
 	if(req.method == "POST") {
-		// decode token if exists
-		if (token) {
-			// verifies secret and checks exp
-			jwt.verify(token, secret, (err, decoded) => {      
-				if (err) {
-					return res.json({ success: false, message: 'Failed to authenticate token.' });    
-				} else {
-					// if everything is good, save to request for use in other routes
-					req.decoded = decoded;
-					next();
-				}
-			});
+		// we don't check for token on auth and signup routes
+		if((req.path != routerBasePrefix + "/authenticate" ) || (req.path != routerBasePrefix + "/signup")){
+			// decode token if exists
+			if (token) {
+				// verifies secret and checks exp
+				jwt.verify(token, secret, (err, decoded) => {      
+					if (err) {
+						return res.json({ success: false, message: 'Failed to authenticate token.' });    
+					} else {
+						// if everything is good, save to request for use in other routes
+						req.decoded = decoded;
+						next();
+					}
+				});
+			} else {
+				// if there is no token
+				// return an error
+				return res.status(403).send({ 
+					success: false, 
+					message: 'No token provided.' 
+				}); 
+			}
 		} else {
-			// if there is no token
-			// return an error
-			return res.status(403).send({ 
-				success: false, 
-				message: 'No token provided.' 
-			}); 
+			next();
 		}
 	} else {
 		next();
