@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       exist: {
-        type: Sequelize.BOOLEA
+        type: Sequelize.BOOLEAN
       },
       fee: {
         type: Sequelize.BOOLEAN
@@ -33,8 +33,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       placeType: {
-        type:   Sequelize.ENUM,
-        values: ['restaurant', 'public', 'shoping center', 'gas station', 'bar']
+        type:   Sequelize.STRING
       },
       address: {
         type: Sequelize.STRING
