@@ -348,23 +348,47 @@ router.get('/toilet/:id/comments', (req, res) => {
  * Register a new user
  */
 router.post('/signup', (req, res) => {
-	models.User.create({
-		name: req.body.name,
-		email: req.body.email,
-		password: req.body.password,
-		picture: req.body.picture,
-		createdAt: Date.now,
-		updatedAt: null
-	}).then((user) => {
-		// on create user, create a token
-		let token = jwt.sign(user, app.get('superSecret'), {
-          expiresInMinutes: 1440 // expires in 24 hours
-        });
-		// return the information including token as JSON
-        res.json({token: token});
+	res.setHeader("Content-Type", "application/json");
+	models.User.findOne({
+		where:{ email: req.body.email }
+	}).then((checkEmail) => {
+		if (!checkEmail) {
+			models.User.create({
+				name: req.body.name,
+				email: req.body.email,
+				password: req.body.password,
+				picture: req.body.picture,
+				createdAt: Date.now(),
+				updatedAt: Date.now()
+			}).then((user) => {
+				// on create user, create a token
+				let token = jwt.sign(
+					{
+						name: user.name,
+						email: user.email,
+						picture: user.picture,
+						createdAt: user.createdAt,
+						updatedAt: user.updatedAt
+					}, 
+					secret, 
+					{
+						expiresIn: 86400 // expires in 24 hours (60sec * 60 Min * 24 hours)
+					}
+				);
+
+				// return the information including token as JSON
+				res.json({ success: true, message: 'Account successfully created.', token: token });
+			}).catch((err) => {
+				console.log(err);
+			});
+		} else {
+			res.json({ success: false, message: 'This email is already user by an account.' });
+		}
+
 	}).catch((err) => {
 		console.log(err);
 	});
+
 });
 
 /**
