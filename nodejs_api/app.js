@@ -119,7 +119,7 @@ router.route('/toilets')
 					}).then((toilet) => {
 						if(req.body.picture != null){
 							fs.writeFile(	
-								"pictures/" + toilet.id + "." + req.body.pictureMimeType.split('/')[1], 
+								"pictures/toilets/" + toilet.id + "." + req.body.pictureMimeType.split('/')[1], 
 								req.body.picture, 'base64', 
 								function(err) {
 									if(err) {
