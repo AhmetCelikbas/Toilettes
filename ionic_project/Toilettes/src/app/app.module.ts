@@ -13,6 +13,7 @@ import { ConfigService } from '../services/config.service';
 import { DataService } from '../services/data.service';
 
 import { Ionic2RatingModule } from 'ionic2-rating';
+import { Geolocation } from 'ionic-native';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { Ionic2RatingModule } from 'ionic2-rating';
     SplashScreen,
     ConfigService,
     DataService,
+    Geolocation,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

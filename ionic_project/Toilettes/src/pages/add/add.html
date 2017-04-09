@@ -4,83 +4,123 @@
       Ajouter des toilettes
     </ion-title>
     <ion-buttons end>
-      <button ion-button icon-only>
-        Ajouter
+      <button ion-button icon-only (click)="add()" [disabled]="!toilet.name">
         <ion-icon name="add"></ion-icon>
+        Ajouter
       </button>
     </ion-buttons>
+
+
   </ion-navbar>
 </ion-header>
 
 <ion-content>
+  <ion-item-divider color="light">Nom des toilettes</ion-item-divider>
 
- 
+    <ion-item-group>
+      <ion-item>
+        <ion-input type="text" placeholder="Nom des toilettes" name="name" [(ngModel)]="toilet.name"></ion-input>
+      </ion-item>
 
-  <ion-item-group>
-    <ion-item-divider color="light">Détails</ion-item-divider>
-    <ion-item>
-      <ion-label> Gratuit</ion-label>
-      <ion-toggle checked="false" [(ngModel)]="free" (ionChange)="action($event)"></ion-toggle>
-    </ion-item>
-    <ion-item>
-      <ion-label> Accessible</ion-label>
-      <ion-toggle checked="false" [(ngModel)]="access" (ionChange)="action($event)"></ion-toggle>
-    </ion-item>
-
-
-    <ion-grid>
-      <ion-row>
-        <ion-col class="noteLabel">
-          Note
-        </ion-col>
-        <ion-col class="note">
-          <rating [(ngModel)]="rate" 
-            readOnly="false"
-            max="5"
-            emptyStarIconName="star-outline"
-            halfStarIconName="star-half"
-            starIconName="star"
-            nullable="false"
-            (ngModelChange)="action($event)"
-          ></rating>
+      <ion-item-divider color="light">Photo</ion-item-divider>
+     <ion-row *ngIf="base64ImageURL">
+        <ion-col class="center">
+          <img [src]="base64ImageURL" />
         </ion-col>
       </ion-row>
-    </ion-grid>
 
-    <ion-item-divider color="light">Type de toilettes</ion-item-divider>
-    <ion-list radio-group [(ngModel)]="type" (ngModelChange)="action($event)">
+      <ion-row>
+        <ion-col>
+          <button ion-button class="submit-btn" full  *ngIf="!base64ImageURL" (click)="getPicture()">Ajouter une photo</button>
+          <button ion-button class="submit-btn" full  *ngIf="base64ImageURL"(click)="getPicture()">Changer la photo</button>
+        </ion-col>
+      </ion-row>
+
+
+      <ion-item-divider color="light">Détails</ion-item-divider>
       <ion-item>
-        <ion-label>Restaurant</ion-label>
-        <ion-radio value="restaurant"></ion-radio>
+        <ion-label> Accessible</ion-label>
+        <ion-toggle checked="false" name="access" [(ngModel)]="toilet.access" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Existe</ion-label>
+        <ion-toggle checked="false" name="exist" [(ngModel)]="toilet.exist" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Gratuit</ion-label>
+        <ion-toggle checked="false" name="fee" [(ngModel)]="toilet.fee" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Pour les hommes</ion-label>
+        <ion-toggle checked="false" name="male" [(ngModel)]="toilet.male" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Pour les femmes</ion-label>
+        <ion-toggle checked="false" name="female" [(ngModel)]="toilet.female" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Fauteuil roulant</ion-label>
+        <ion-toggle checked="false" name="wheelchair" [(ngModel)]="toilet.wheelchair" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Eau potable</ion-label>
+        <ion-toggle checked="false" name="drinking_water" [(ngModel)]="toilet.drinking_water" ></ion-toggle>
       </ion-item>
 
-      <ion-item>
-        <ion-label>Publiques</ion-label>
-        <ion-radio value="public"></ion-radio>
-      </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col class="noteLabel">
+            Note
+          </ion-col>
+          <ion-col class="note">
+            <rating name="rating" [(ngModel)]="toilet.rating" 
+              readOnly="false"
+              max="5"
+              emptyStarIconName="star-outline"
+              halfStarIconName="star-half"
+              starIconName="star"
+              nullable="false"  
+            ></rating>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
 
-      <ion-item>
-        <ion-label>Centre commercial</ion-label>
-        <ion-radio  value="shopingCenter" ></ion-radio>
-      </ion-item>
+      <ion-item-divider color="light">Type de toilettes</ion-item-divider>
+      <ion-list radio-group name="placeType" [(ngModel)]="toilet.placeType">
+        <ion-item>
+          <ion-label>Publiques</ion-label>
+          <ion-radio value="public"></ion-radio>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Restaurant</ion-label>
+          <ion-radio value="restaurant"></ion-radio>
+        </ion-item>
 
-      <ion-item>
-        <ion-label>Station carburant</ion-label>
-        <ion-radio value="gasStation" ></ion-radio>
-      </ion-item>
+        <ion-item>
+          <ion-label>Centre commercial</ion-label>
+          <ion-radio  value="shopingCenter" ></ion-radio>
+        </ion-item>
 
-      <ion-item>
-        <ion-label>Bar</ion-label>
-        <ion-radio value="pub" ></ion-radio>
-      </ion-item>
-    </ion-list>
+        <ion-item>
+          <ion-label>Station carburant</ion-label>
+          <ion-radio value="gasStation" ></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Bar</ion-label>
+          <ion-radio value="pub" ></ion-radio>
+        </ion-item>
+      </ion-list>
 
 
 
+      <!--<ion-row>
+        <ion-col>
+          <button ion-button class="submit-btn" full (click)="add()" [disabled]="!toilet.name">Ajouter ces toilettes</button>
+        </ion-col>
+      </ion-row>-->
 
-
-
-  </ion-item-group>
-
+    </ion-item-group>
 
 </ion-content>

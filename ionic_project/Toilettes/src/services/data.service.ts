@@ -21,12 +21,16 @@ export class DataService {
                           toiletSearchArea['southWest']['lng'] + "/" + 
                           toiletSearchArea['northEast']['lat'] + "/" + 
                           toiletSearchArea['northEast']['lng']
-                        ).map ( 
+                        ).map (
       res => res.json()
     )
   }
 
   public post(verb:string, data) {
+
+    // bypass login
+    // localStorage.setItem('token', "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjo1LCJpYXQiOjE0OTE3NTI0ODUsImV4cCI6MTQ5MTgzODg4NX0.dJ3R-M1OCvXgynjEqxPQfsu58Xvz2-kdHVkOfC8IpAQ");
+
     let headers = new Headers({
       'Content-Type': 'application/json',
       'authorization': localStorage.getItem('token')
