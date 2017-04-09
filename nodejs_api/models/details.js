@@ -10,11 +10,10 @@ module.exports = function(sequelize, DataTypes) {
 		female: DataTypes.BOOLEAN,
 		wheelchair: DataTypes.BOOLEAN,
 		drinking_water: DataTypes.BOOLEAN,
-		placeType: {
-			type:   DataTypes.ENUM,
-			values: ['restaurant', 'public', 'shoping center', 'gas station', 'bar']
-		},
-		address: DataTypes.STRING
+		placeType: DataTypes.STRING,
+		address: DataTypes.STRING,
+		createdAt: DataTypes.DATE,
+   		updatedAt: DataTypes.DATE
 	}, {
 		classMethods: {
 			associate: function(models) {

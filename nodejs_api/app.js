@@ -3,7 +3,9 @@ var bodyParser = require('body-parser');
 var sqlite3 = require('sqlite3').verbose();
 var geocoder = require('geocoder');
 var http = require('http');
+var cors = require('cors')
 var jwt = require('jsonwebtoken');
+var fs = require("fs");
 var express = require('express');
 var app = express();
 
@@ -14,11 +16,14 @@ var app = express();
 var models = require('./models');
 
 // Crée un convertisseur de données de formulaire
-var formParser = bodyParser.urlencoded({ extended: false });
+// var formParser = bodyParser.urlencoded({ extended: false });
+var formParser = bodyParser.json();
 
 // Support encoded bodies
 app.use(formParser);
 
+// Support cors
+app.use(cors({credentials: true, origin: true}));
 /**
  * Get an instance of the express Router
  * and set '/v1/api' as prefix for all routes 
@@ -30,10 +35,9 @@ app.use(routerBasePrefix, router);
 let secret = 'Bat0193726485Man';
 
 // route middleware to verify a token
-app.use((req, res, next) => {
-	
+router.use((req, res, next) => {
 	// check header or url parameters or post parameters for token
-	let token = req.headers['Authorization'];
+	let token = req.headers['authorization'];
 	// We want users to be authenticated for post methods only
 	if(req.method == "POST") {
 		// we don't check for token on auth and signup routes
@@ -46,7 +50,7 @@ app.use((req, res, next) => {
 						return res.json({ success: false, message: 'Failed to authenticate token.' });    
 					} else {
 						// if everything is good, save to request for use in other routes
-						req.decoded = decoded;
+						req.token = decoded;
 						next();
 					}
 				});
@@ -81,14 +85,16 @@ router.get('/', (req, res) => {
 router.route('/toilets')
 	// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
     .post(formParser, (req, res) => {
-		// getting the address from gps location
+		getting the address from gps location
 		geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
-
 			models.Toilet.create({
 					id_osm: req.body.id_osm,
+					id_user: req.token.id_user,
 					lat: req.body.lat,
-					lon: req.body.lon,
-					picture: req.body.picture
+					lng: req.body.lon,
+					picture: null,
+					createdAt: Date.now(),
+					updatedAt: Date.now()
 				}).then((toilet) => {
 					models.Details.create({
 						id_toilet: toilet.id,
@@ -98,18 +104,34 @@ router.route('/toilets')
 						rating: req.body.Details.rating,
 						fee: req.body.Details.fee,
 						male: req.body.Details.male,
+						female: req.body.Details.male,
 						wheelchair: req.body.Details.wheelchair,
 						drinking_water: req.body.Details.drinking_water,
 						placeType: req.body.Details.placeType,
-						address: data.results[0].formatted_address
-					}).then((toilet) => {});
-					res.end(JSON.stringify(response));
+						address: data.results[0].formatted_address,
+						createdAt: Date.now(),
+						updatedAt: Date.now()
+					}).then((toilet) => {
+						if(req.body.picture != null){
+							fs.writeFile(	
+								"pictures/" + toilet.id + "." + req.body.pictureMimeType.split('/')[1], 
+								req.body.picture, 'base64', 
+								function(err) {
+									if(err) {
+										console.log(err);
+									} 
+								}
+							);
+						}
+						res.json({ success: true, message: 'Toilets added.' });
+
+					});
+					
 				}).catch((err) => {
 					console.log(err);
 				});
 		}, { sensor: true, language: 'fr' });
 
-		res.end();
     })
 	// get all the toilets (accessed at GET http://localhost:8080/v1/api/toilets)
     .get((req, res) => {
@@ -348,6 +370,9 @@ router.get('/toilet/:id/comments', (req, res) => {
  * Register a new user
  */
 router.post('/signup', (req, res) => {
+
+	console.log(req.body);
+
 	res.setHeader("Content-Type", "application/json");
 	models.User.findOne({
 		where:{ email: req.body.email }
@@ -364,11 +389,7 @@ router.post('/signup', (req, res) => {
 				// on create user, create a token
 				let token = jwt.sign(
 					{
-						name: user.name,
-						email: user.email,
-						picture: user.picture,
-						createdAt: user.createdAt,
-						updatedAt: user.updatedAt
+						id_user: user.id,
 					}, 
 					secret, 
 					{
@@ -405,11 +426,7 @@ router.post('/authenticate', (req, res) => {
 		}
 		let token = jwt.sign(
 			{
-				name: user.name,
-				email: user.email,
-				picture: user.picture,
-				createdAt: user.createdAt,
-				updatedAt: user.updatedAt
+				id_user: user.id,
 			}, 
 			secret, 
 			{

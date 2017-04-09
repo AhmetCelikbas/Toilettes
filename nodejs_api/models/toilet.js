@@ -5,7 +5,10 @@ module.exports = function(sequelize, DataTypes) {
     id_user: DataTypes.INTEGER,
     lat: DataTypes.REAL,
     lng: DataTypes.REAL,
-    picture: DataTypes.STRING
+    picture: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
+
   }, {
     classMethods: {
       associate: function(models) {

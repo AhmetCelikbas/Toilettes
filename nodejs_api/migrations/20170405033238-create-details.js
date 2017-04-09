@@ -26,6 +26,9 @@ module.exports = {
       male: {
         type: Sequelize.BOOLEAN
       },
+      female: {
+        type: Sequelize.BOOLEAN
+      },
       wheelchair: {
         type: Sequelize.BOOLEAN
       },
