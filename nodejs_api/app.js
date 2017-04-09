@@ -41,26 +41,31 @@ router.use((req, res, next) => {
 	// We want users to be authenticated for post methods only
 	if(req.method == "POST") {
 		// we don't check for token on auth and signup routes
-		if((req.path != routerBasePrefix + "/authenticate" ) || (req.path != routerBasePrefix + "/signup")){
-			// decode token if exists
-			if (token) {
-				// verifies secret and checks exp
-				jwt.verify(token, secret, (err, decoded) => {      
-					if (err) {
-						return res.json({ success: false, message: 'Failed to authenticate token.' });    
-					} else {
-						// if everything is good, save to request for use in other routes
-						req.token = decoded;
-						next();
-					}
-				});
+		if(req.path != "/authenticate"){
+			if(req.path != "/signup"){
+				console.log(req.path);
+				// decode token if exists
+				if (token) {
+					// verifies secret and checks exp
+					jwt.verify(token, secret, (err, decoded) => {      
+						if (err) {
+							return res.json({ success: false, message: 'Failed to authenticate token.' });    
+						} else {
+							// if everything is good, save to request for use in other routes
+							req.token = decoded;
+							next();
+						}
+					});
+				} else {
+					// if there is no token
+					// return an error
+					return res.status(403).send({ 
+						success: false, 
+						message: 'No token provided.' 
+					}); 
+				}
 			} else {
-				// if there is no token
-				// return an error
-				return res.status(403).send({ 
-					success: false, 
-					message: 'No token provided.' 
-				}); 
+				next();
 			}
 		} else {
 			next();
@@ -85,7 +90,7 @@ router.get('/', (req, res) => {
 router.route('/toilets')
 	// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
     .post(formParser, (req, res) => {
-		getting the address from gps location
+		// getting the address from gps location
 		geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
 			models.Toilet.create({
 					id_osm: req.body.id_osm,
