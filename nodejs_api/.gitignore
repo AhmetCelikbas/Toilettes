@@ -5,7 +5,10 @@
 npm-debug.log*
 
 node_modules/
+pictures/toilets/*
+pcitures/users/*
 $RECYCLE.BIN/
 
 .DS_Store
 Thumbs.db
+mydb.db
