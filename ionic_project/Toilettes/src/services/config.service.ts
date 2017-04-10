@@ -18,6 +18,7 @@ export class ConfigService {
       getToilets : "/mock_liste_toilettes.php",                  // Get user nearby toilets
       createToilet : "/mock_liste_toilettes.php",                // Get user nearby toilets
       toilets : "/toilets",                                     // add new toilet
+      toilet : "/toilet/",                                     // edit a toilet
       signup : "/signup",                                     // signup
       authenticate : "/authenticate"                                     // authenticate
 
