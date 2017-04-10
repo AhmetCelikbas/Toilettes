@@ -3,6 +3,16 @@
     <ion-title>
       À propos
     </ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="logout()" *ngIf="getToken() != null">
+        Se déconnecter
+      </button>
+      <button ion-button icon-only (click)="login()" *ngIf="getToken() == null">
+        Se connecter
+      </button>
+
+
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
