@@ -463,14 +463,15 @@ router.post('/authenticate', (req, res) => {
  * Get a user
  */
 router.get('/user/:id', (req, res) => {
+	
 	models.User.findOne({
 		where:{ id: req.params.id }
 	}).then((user) => {
-		if (!user) {
+		if (user == null) {
 			res.json({ success: false, message: 'Failed to find user' });
-		} 
-		res.setHeader("Content-Type", "application/json");
-		res.json(user);
+		} else {
+			res.json(user);
+		}
 	}).catch((err) => {
 		console.log(err);
 	});
@@ -487,7 +488,6 @@ router.post('/user/:id', (req, res) => {
 	}, {
 		where: { id: req.params.id }
 	}).then((user) => {
-		res.setHeader("Content-Type", "application/json");
 		res.json(user);
 	}).catch((err) => {
 		console.log(err);
