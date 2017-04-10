@@ -210,44 +210,26 @@ router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (
 });
 
 
-// /**
-//  * or update its picture
-//  */
-// router.route('/toilet/:id')
-// 	.get((req, res) => {
-
-// 	// getting the address from gps location
-// 		// geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
-// 		// 	address: data.results[0].formatted_address,
-// 		// }, { sensor: true, language: 'fr' });
 
 
-// 		let id = req.params.id;
-		
-// 		models.Toilet.findOne({
-// 				where:{ id: id}
-// 			}).then((toilet) => {
-				
-// 				if (toilet == null) {
-// 					res.json({message: "Toilet not found"});
-// 				}
-// 				res.setHeader("Content-Type", "application/json");
-// 				res.json(JSON.parse(toilet));
-// 			}).catch((err) => { 
-// 				console.log(err);
-// 			});
-// 	})
-// 	.post((req, res) => {
-// 		models.Toilet.update({
-// 			picture: req.body.picture
-// 		}, {
-// 		  where: { id: req.params.id }
-// 		}).then((toilet) => {
-// 			res.end();
-// 		}).catch((err) => {
-// 			console.log(err);
-// 		});
-// });
+/**
+ * Get toilet picture
+ */
+router.get('/toilet/:id/picture', (req, res) => {
+
+	var filePath = 'pictures/toilets/' + req.params.id +'.jpeg';
+	if(fs.existsSync(filePath)){
+		var imageData = fs.readFileSync(filePath);
+		var base64data = new Buffer(imageData).toString('base64');
+		res.json({ picture : base64data})
+	} else {
+		res.json({ picture : null})
+	}
+
+
+});
+
+
 
 
 /**
@@ -255,11 +237,7 @@ router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (
  */
 router.post('/toilet/:id', formParser, (req, res) => {
 	models.Toilet.update({
-			id_osm: req.body.id_osm,
 			id_user: req.token.id_user,
-			lat: req.body.lat,
-			lng: req.body.lon,
-			picture: null,
 			updatedAt: Date.now()
 		}, { where: { id: req.params.id } }).then((toilet) => {
 			models.Details.update({
@@ -288,7 +266,7 @@ router.post('/toilet/:id', formParser, (req, res) => {
 						}
 					);
 				}
-				res.json({ success: true, message: 'Toilets added.' });
+				res.json({ success: true, message: 'Toilets edited.' });
 			});
 			
 		}).catch((err) => {
