@@ -10,7 +10,7 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class ConfigService {
   
-  apiUrl = "https://api.ahmetcelikbas.fr/toilettes";
+  apiUrl = "http://ahmetcelikbas.fr:8080/v1/api";
   // apiUrl = "http://192.168.1.93:8080/v1/api";
   GoogleMapsApiKey = "AIzaSyDE99utD1l0leasTivb7AuNw_Qk1DzSY2c"; // API KEY FOR ADDRESS REQUEST SEARCH FROM POSITION (lat, lng)
   
