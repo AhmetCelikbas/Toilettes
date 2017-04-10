@@ -437,6 +437,7 @@ router.post('/authenticate', (req, res) => {
 	models.User.findOne({
 		where:{ email: req.body.email, password: req.body.password }
 	}).then((user) => {
+		console.log(user)
 		if (user == null) {
 			res.json({ success: false, message: 'Authentication failed. User not found.' });
 		} else {
@@ -462,39 +463,35 @@ router.post('/authenticate', (req, res) => {
  * Get a user
  */
 router.get('/user/:id', (req, res) => {
-	if (req.decoded) {
-		models.User.findOne({
-			where:{ id: req.decoded.id }
-		}).then((user) => {
-			if (!user) {
-				res.json({ success: false, message: 'Failed to find user' });
-			} 
-			res.setHeader("Content-Type", "application/json");
-			res.json(user);
-		}).catch((err) => {
-			console.log(err);
-		});
-	}
+	models.User.findOne({
+		where:{ id: req.params.id }
+	}).then((user) => {
+		if (!user) {
+			res.json({ success: false, message: 'Failed to find user' });
+		} 
+		res.setHeader("Content-Type", "application/json");
+		res.json(user);
+	}).catch((err) => {
+		console.log(err);
+	});
 });
 
 /**
  * Update user data
  */
 router.post('/user/:id', (req, res) => {
-	if (req.decoded) {
-		models.User.update({
-			name: DataTypes.STRING,
-			picture: DataTypes.STRING,
-			updatedAt: DataTypes.DATE
-		}, {
-			where: { id: req.decoded.id }
-		}).then((user) => {
-			res.setHeader("Content-Type", "application/json");
-			res.json(user);
-		}).catch((err) => {
-			console.log(err);
-		});
-	}
+	models.User.update({
+		name: DataTypes.STRING,
+		picture: DataTypes.STRING,
+		updatedAt: DataTypes.DATE
+	}, {
+		where: { id: req.params.id }
+	}).then((user) => {
+		res.setHeader("Content-Type", "application/json");
+		res.json(user);
+	}).catch((err) => {
+		console.log(err);
+	});
 });
 
 
