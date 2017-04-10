@@ -411,7 +411,7 @@ router.post('/signup', (req, res) => {
 					}, 
 					secret, 
 					{
-						expiresIn: 86400 // expires in 24 hours (60sec * 60 Min * 24 hours)
+						expiresIn: 2629746 // expires in 24 hours (60sec * 60 Min * 24 hours)
 					}
 				);
 
@@ -437,23 +437,22 @@ router.post('/authenticate', (req, res) => {
 	models.User.findOne({
 		where:{ email: req.body.email, password: req.body.password }
 	}).then((user) => {
-		if (!user) {
+		if (user == null) {
 			res.json({ success: false, message: 'Authentication failed. User not found.' });
-		} else if (user.email != req.body.email && user.password != req.body.password) {
-			res.json({ success: false, message: 'Authentication failed. Wrong login.' });
+		} else {
+			let token = jwt.sign(
+				{
+					id_user: user.id,
+				}, 
+				secret, 
+				{
+					expiresIn: 2629746 // expires in 24 hours (60sec * 60 Min * 24 hours)
+				}
+			);
+			// return the information including token as JSON
+			res.json({ success: true, message: 'Log in successfully.', token: token });
 		}
-		let token = jwt.sign(
-			{
-				id_user: user.id,
-			}, 
-			secret, 
-			{
-				expiresIn: 86400 // expires in 24 hours (60sec * 60 Min * 24 hours)
-			}
-		);
-
-        // return the information including token as JSON
-        res.json({ success: true, message: 'Log in successfully.', token: token });
+		
 	}).catch((err) => {
 		console.log(err);
 	});
