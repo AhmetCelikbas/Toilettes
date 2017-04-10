@@ -210,67 +210,90 @@ router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (
 });
 
 
-/**
- * get a specific toilet
- * or update its picture
- */
-router.route('/toilet/:id')
-	.get((req, res) => {
+// /**
+//  * or update its picture
+//  */
+// router.route('/toilet/:id')
+// 	.get((req, res) => {
 
-	// getting the address from gps location
-		// geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
-		// 	address: data.results[0].formatted_address,
-		// }, { sensor: true, language: 'fr' });
+// 	// getting the address from gps location
+// 		// geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
+// 		// 	address: data.results[0].formatted_address,
+// 		// }, { sensor: true, language: 'fr' });
 
 
-		let id = req.params.id;
+// 		let id = req.params.id;
 		
-		models.Toilet.findOne({
-				where:{ id: id}
-			}).then((toilet) => {
+// 		models.Toilet.findOne({
+// 				where:{ id: id}
+// 			}).then((toilet) => {
 				
-				if (toilet == null) {
-					res.json({message: "Toilet not found"});
-				}
-				res.setHeader("Content-Type", "application/json");
-				res.json(JSON.parse(toilet));
-			}).catch((err) => { 
-				console.log(err);
-			});
-	})
-	.post((req, res) => {
-		models.Toilet.update({
-			picture: req.body.picture
-		}, {
-		  where: { id: req.params.id }
-		}).then((toilet) => {
-			res.end();
-		}).catch((err) => {
-			console.log(err);
-		});
-});
+// 				if (toilet == null) {
+// 					res.json({message: "Toilet not found"});
+// 				}
+// 				res.setHeader("Content-Type", "application/json");
+// 				res.json(JSON.parse(toilet));
+// 			}).catch((err) => { 
+// 				console.log(err);
+// 			});
+// 	})
+// 	.post((req, res) => {
+// 		models.Toilet.update({
+// 			picture: req.body.picture
+// 		}, {
+// 		  where: { id: req.params.id }
+// 		}).then((toilet) => {
+// 			res.end();
+// 		}).catch((err) => {
+// 			console.log(err);
+// 		});
+// });
 
 
 /**
- * Get toilet's details
+ * update a toilet
  */
-router.post('/toilet/:id/details', formParser, (req, res) => {
-	models.Details.update({
-			name: req.body.Details.name,
-			access: req.body.Details.access,
-			exist: req.body.Details.exist,
-			rating: req.body.Details.rating,
-			fee: req.body.Details.fee,
-			male: req.body.Details.male,
-			wheelchair: req.body.Details.wheelchair,
-			drinking_water: req.body.Details.drinking_water,
-			placeType: req.body.Details.placeType
-		}, {
-		  where: { id_toilet: req.params.id }
+router.post('/toilet/:id', formParser, (req, res) => {
+	models.Toilet.update({
+			id_osm: req.body.id_osm,
+			id_user: req.token.id_user,
+			lat: req.body.lat,
+			lng: req.body.lon,
+			picture: null,
+			updatedAt: Date.now()
+		}, { where: { id: req.params.id } }).then((toilet) => {
+			models.Details.update({
+				id_toilet: toilet.id,
+				name: req.body.Details.name,
+				access: req.body.Details.access,
+				exist: req.body.Details.exist,
+				rating: req.body.Details.rating,
+				fee: req.body.Details.fee,
+				male: req.body.Details.male,
+				female: req.body.Details.male,
+				wheelchair: req.body.Details.wheelchair,
+				drinking_water: req.body.Details.drinking_water,
+				placeType: req.body.Details.placeType,
+				createdAt: Date.now(),
+				updatedAt: Date.now()
+			}, { where: { id_toilet: req.params.id } }).then((toilet) => {
+				if(req.body.picture != null){
+					fs.writeFile(	
+						"pictures/toilets/" + req.params.id + "." + req.body.pictureMimeType.split('/')[1], 
+						req.body.picture, 'base64', 
+						function(err) {
+							if(err) {
+								console.log(err);
+							} 
+						}
+					);
+				}
+				res.json({ success: true, message: 'Toilets added.' });
+			});
+			
 		}).catch((err) => {
 			console.log(err);
 		});
-		res.end();
 });
 
 

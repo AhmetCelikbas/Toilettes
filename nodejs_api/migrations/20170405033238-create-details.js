@@ -20,6 +20,9 @@ module.exports = {
       exist: {
         type: Sequelize.BOOLEAN
       },
+      rating: {
+        type: Sequelize.INTEGER
+      },
       fee: {
         type: Sequelize.BOOLEAN
       },
