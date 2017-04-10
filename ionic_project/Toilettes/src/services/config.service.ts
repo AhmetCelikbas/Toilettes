@@ -10,18 +10,15 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class ConfigService {
   
-  // apiUrl = "https://api.ahmetcelikbas.fr/toilettes";
-  apiUrl = "http://192.168.1.93:8080/v1/api";
+  apiUrl = "https://api.ahmetcelikbas.fr/toilettes";
+  // apiUrl = "http://192.168.1.93:8080/v1/api";
   GoogleMapsApiKey = "AIzaSyDE99utD1l0leasTivb7AuNw_Qk1DzSY2c"; // API KEY FOR ADDRESS REQUEST SEARCH FROM POSITION (lat, lng)
   
   apiVerbs = {
-      getToilets : "/mock_liste_toilettes.php",                  // Get user nearby toilets
-      createToilet : "/mock_liste_toilettes.php",                // Get user nearby toilets
       toilets : "/toilets",                                     // add new toilet
-      toilet : "/toilet/",                                     // edit a toilet
+      toilet : "/toilet",                                     // edit a toilet
       signup : "/signup",                                     // signup
       authenticate : "/authenticate"                                     // authenticate
-
   }
 
 
