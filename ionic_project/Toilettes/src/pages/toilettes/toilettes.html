@@ -1,9 +1,23 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Toilettes</ion-title>
+
+    <ion-buttons end>
+      <button ion-button icon-only (click)="clearMap()">
+        Nettoyer
+      </button>
+    </ion-buttons>
+
   </ion-navbar>
 </ion-header>
 
 <ion-content>
   <div #map id="map"></div>
+
+  <ion-row >
+    <ion-col class="center">
+        <button ion-button outline (click)="loadNearbyToilets()" *ngIf="toiletsLoadingFinished" [disabled]="!mapReady">Trouver des toilettes</button>
+        <button ion-button outline (click)="loadNearbyToilets()" *ngIf="!toiletsLoadingFinished" [disabled]="!mapReady">Loading ...</button>
+    </ion-col>
+  </ion-row>
 </ion-content>

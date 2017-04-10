@@ -12,16 +12,22 @@ export class DataService {
     console.log('Hello DataService Provider');
   }
 
+  // public get(verb:string, toiletSearchArea: any) {
+  //   return this.http.get( this.config.apiUrl + 
+  //                         verb + 
+  //                         "/" + 
+  //                         toiletSearchArea['southWest']['lat'] + "/" + 
+  //                         toiletSearchArea['southWest']['lng'] + "/" + 
+  //                         toiletSearchArea['northEast']['lat'] + "/" + 
+  //                         toiletSearchArea['northEast']['lng']
+  //                       ).map (
+  //     res => res.json()
+  //   )
+  // }
 
-  public get(verb:string, toiletSearchArea: any) {
-    return this.http.get( this.config.apiUrl + 
-                          verb + 
-                          "/" + 
-                          toiletSearchArea['southWest']['lat'] + "/" + 
-                          toiletSearchArea['southWest']['lng'] + "/" + 
-                          toiletSearchArea['northEast']['lat'] + "/" + 
-                          toiletSearchArea['northEast']['lng']
-                        ).map (
+
+  public get(verb:string) {
+    return this.http.get( this.config.apiUrl + verb).map (
       res => res.json()
     )
   }

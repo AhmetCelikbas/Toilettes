@@ -26,7 +26,8 @@ export class ToilettesPage {
   private cameraPos: CameraPosition;
   
   private toilets : Array<Object>;
-
+  private mapReady : boolean;
+  private toiletsLoadingFinished : boolean;
 
   constructor(  public platform: Platform, 
                 public navCtrl: NavController,
@@ -36,6 +37,8 @@ export class ToilettesPage {
     this.geolocationOptions = {
       enableHighAccuracy: true      // Force Google Maps Plugin To locate user with a high accuracy
     };
+    this.mapReady = false;
+    this.toiletsLoadingFinished = false;
   }
 
 
@@ -44,7 +47,7 @@ export class ToilettesPage {
     
     this.platform.ready().then(() => {
       this.loadGoogleMaps();
-      this.loadNearbyToilets();
+      // this.loadNearbyToilets();
       
     });
   }
@@ -52,9 +55,9 @@ export class ToilettesPage {
 
 
   private loadNearbyToilets() {
-
+    this.toiletsLoadingFinished = false;
     // calculate nearby area
-    // this.userPosition = new GoogleMapsLatLng(45.185757, 5.749789);
+    this.userPosition = new GoogleMapsLatLng(45.185757, 5.749789);
 
     let toiletSearchArea = {
       southWest : {
@@ -67,39 +70,46 @@ export class ToilettesPage {
       }
     }
 
-    console.log(toiletSearchArea);
-
-    this.data.get(this.config.apiVerbs.toilets, toiletSearchArea).subscribe (
+    this.data.get(
+      this.config.apiVerbs.toilets + '/' +
+        toiletSearchArea.southWest.lat + '/' + 
+        toiletSearchArea.southWest.lng + '/' + 
+        toiletSearchArea.northEast.lat + '/' + 
+        toiletSearchArea.northEast.lng
+    ).subscribe (
       apiRes => this.toilets = apiRes,
       error => {
         console.log("error loading toilets");
         console.log(error);
       },
       () => {
+        this.map.clear()
         console.log("nearby toilets loaded")
-        console.log(this.toilets);
-
         for(let toilet in this.toilets){
-
+          
             // ADD MARKER ON MAP
-            // this.map.addMarker({
-            //   'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lon']),
-            //   'title': this.toilets[toilet]['name'],
-            //   "snippet": "",
-            //   'styles' : {
-            //     'text-align': 'center',
-            //     'font-weight': 'bold'
-            //   }
-            // });
+            this.map.addMarker({
+              'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lng']),
+              'title': this.toilets[toilet]['Details']['name'],
+              "snippet": "",
+              'styles' : {
+                'text-align': 'center',
+                'font-weight': 'bold'
+              }
+            });
 
         }
-        
+        this.toiletsLoadingFinished = true;
       }
     )
 
 
   }
 
+
+  clearMap(){
+    this.map.clear();
+  }
 
   private loadGoogleMaps() {
     this.map = new GoogleMap(document.getElementById('map'), {
@@ -119,6 +129,7 @@ export class ToilettesPage {
     });
     this.map.one(GoogleMapsEvent.MAP_READY).then(() => {
       console.log('Map is ready!')
+      this.mapReady = true;
       this.locateUser();
       // this.loadNearbyToilets();
     });
