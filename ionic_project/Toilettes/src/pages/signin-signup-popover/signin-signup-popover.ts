@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
-import { ViewController, NavController, NavParams } from 'ionic-angular';
-
-import { SigninPage } from '../signin/signin';
-import { SignupPage } from '../signup/signup';
+import {AlertController, LoadingController,  ViewController,   NavController,   NavParams} from 'ionic-angular';
 
 import {  Camera, 
           CameraOptions } from 'ionic-native';
@@ -11,6 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 
 import { ConfigService } from '../../services/config.service';
 import { DataService } from '../../services/data.service';
+import { md5 } from '../../services/md5.service';
 
 @Component({
   selector: 'page-signin-signup-popover',
@@ -32,21 +30,23 @@ export class SigninSignupPopoverPage {
                 public navParams: NavParams,
                 private config: ConfigService,
                 private data: DataService,
-                private sanitizer:DomSanitizer
+                private sanitizer:DomSanitizer,
+                private loadingCtrl: LoadingController,
+                public alertCtrl: AlertController
   ) {
     this.action = "signin";
 
     this.cameraOptions = {
-            quality : 75,
-            destinationType : Camera.DestinationType.DATA_URL,
-            sourceType : Camera.PictureSourceType.CAMERA,
-            allowEdit : true,
-            encodingType: Camera.EncodingType.JPEG,
-            mediaType: Camera.MediaType.PICTURE,
-            targetWidth: 300,
-            targetHeight: 300,
-            saveToPhotoAlbum: false
-        };
+        quality : 75,
+        destinationType : Camera.DestinationType.DATA_URL,
+        sourceType : Camera.PictureSourceType.CAMERA,
+        allowEdit : true,
+        encodingType: Camera.EncodingType.JPEG,
+        mediaType: Camera.MediaType.PICTURE,
+        targetWidth: 300,
+        targetHeight: 300,
+        saveToPhotoAlbum: false
+    };
     this.imageMimeType = "image/jpeg";
     this.picture = null;
     this.pictureUrl = null;
@@ -71,11 +71,81 @@ export class SigninSignupPopoverPage {
 
 
 
-  pushSignup(){
-    this.viewCtrl.dismiss({SigninSignupFinished: true});
+  signup(){
+
+    let userData : Object = {
+      name : this.name,
+      email : this.email,
+      password : md5(this.password),
+      pictureMimeType : this.imageMimeType,
+      picture : this.picture,
+    }
+
+
+    let sendingSpinnerAlert = this.loadingCtrl.create({
+      content: 'Création du compte ...'
+    });
+    sendingSpinnerAlert.present();
+    this.data.post(this.config.apiVerbs.signup, userData).then(
+      (res) => {
+        sendingSpinnerAlert.dismiss().then(
+          ()=> {
+            if(res['success'] == true ){
+              window.localStorage.setItem('token', res['token']);
+              this.viewCtrl.dismiss({SigninSignupFinished: true});
+            } else if (res['message'] == "This email is already user by an account." ){
+              let alert = this.alertCtrl.create({
+                  title: 'Création de compte',
+                  subTitle: 'Cette adresse mail est déjà utilisée',
+                  buttons: ['OK']
+                });
+                alert.present();
+
+            }
+          }
+        );
+      },
+      (err) => {
+        sendingSpinnerAlert.dismiss();
+        console.log(err);
+      });
+
+    
   }
 
-  pushSignin(){
-    this.viewCtrl.dismiss({SigninSignupFinished: true});
+  signin(){
+    let userData : Object = {
+      email : this.email,
+      password : md5(this.password)
+    }
+
+
+    let sendingSpinnerAlert = this.loadingCtrl.create({
+      content: 'Connexion en cours ...'
+    });
+    sendingSpinnerAlert.present();
+    this.data.post(this.config.apiVerbs.authenticate, userData).then(
+      (res) => {
+        sendingSpinnerAlert.dismiss().then(
+          ()=> {
+            if(res['success'] == true ){
+              window.localStorage.setItem('token', res['token']);
+              this.viewCtrl.dismiss({SigninSignupFinished: true});
+            } else if (res['success'] == false ){
+              let alert = this.alertCtrl.create({
+                  title: 'Connexion',
+                  subTitle: 'Utilisateur inconnu ou mot de passe erroné.',
+                  buttons: ['OK']
+                });
+                alert.present();
+
+            }
+          }
+        );
+      },
+      (err) => {
+        sendingSpinnerAlert.dismiss();
+        console.log(err);
+      });
   }
 }

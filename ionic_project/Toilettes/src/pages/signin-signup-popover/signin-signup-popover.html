@@ -18,35 +18,45 @@
     <ion-item-group>
       <ion-row>
         <ion-item>
+          <ion-label color="primary" stacked>Nom</ion-label>
           <ion-input type="text" placeholder="Nom" [(ngModel)]="name"></ion-input>
         </ion-item>
       </ion-row>
       <ion-row>
         <ion-item>
-          <ion-input type="text" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
+          <ion-label color="primary" stacked>Adresse mail</ion-label>
+          <ion-input type="email" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
         </ion-item>
       </ion-row>
       <ion-row>
         <ion-item>
+          <ion-label color="primary" stacked>Mot de passe</ion-label>
           <ion-input type="password" placeholder="Mot de passe" [(ngModel)]="password"></ion-input>
         </ion-item>
       </ion-row>
 
+      <ion-row>
+        <ion-item>
+          <ion-label color="primary" stacked>Photo de profil</ion-label>
+        </ion-item>
+      </ion-row>
+
       <ion-row *ngIf="pictureUrl">
-        <ion-col class="center">
+        <ion-item class="center">
           <img [src]="pictureUrl" />
-        </ion-col>
+        </ion-item>
       </ion-row>
 
       <ion-row>
         <ion-item class="center">
-          <button ion-button outline (click)="getPicture()"><ion-icon name="camera"> </ion-icon> photo de profil</button>
+          <button ion-button outline *ngIf="!picture" (click)="getPicture()"><ion-icon name="camera"> </ion-icon> Ajouter une photo</button>
+          <button ion-button outline *ngIf="picture" (click)="getPicture()"><ion-icon name="camera"> </ion-icon> Changer la photo</button>
         </ion-item>
       </ion-row>
 
       <ion-row>
         <ion-col>
-          <button ion-button outline (click)="pushSignup()">S'inscrire</button>
+          <button ion-button outline (click)="signup()">S'inscrire</button>
         </ion-col>
       </ion-row>
     </ion-item-group>
@@ -57,18 +67,20 @@
     <ion-item-group>
       <ion-row>
         <ion-item>
-          <ion-input type="text" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
+          <ion-label color="primary" stacked>Adresse mail</ion-label>
+          <ion-input type="email" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
         </ion-item>
       </ion-row>
       <ion-row>
         <ion-item>
+          <ion-label color="primary" stacked>Mot de passe</ion-label>
           <ion-input type="password" placeholder="Mot de passe" [(ngModel)]="password"></ion-input>
         </ion-item>
       </ion-row>
       
       <ion-row>
         <ion-col>
-          <button ion-button outline (click)="pushSignin()">Se connecter</button>
+          <button ion-button outline (click)="signin()">Se connecter</button>
         </ion-col>
       </ion-row>
     </ion-item-group>
