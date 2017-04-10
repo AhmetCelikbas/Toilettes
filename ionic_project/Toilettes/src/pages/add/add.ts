@@ -1,16 +1,23 @@
 import { Component } from '@angular/core';
 
-import { AlertController, Platform,  NavController,  LoadingController} from 'ionic-angular';
+import {  AlertController, 
+          Platform,  
+          NavController,  
+          LoadingController, 
+          PopoverController } from 'ionic-angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Ionic2RatingModule } from 'ionic2-rating';
-
+import {  Geolocation,
+          Camera, 
+          CameraOptions } from 'ionic-native';
 
 import { ConfigService } from '../../services/config.service';
 import { DataService } from '../../services/data.service';
 
-import {  Geolocation,
-          Camera, 
-          CameraOptions } from 'ionic-native';
+import { SigninSignupPopoverPage } from '../signin-signup-popover/signin-signup-popover';
+
+
+
 
 class Toilet {
   public id_osm : number;
@@ -60,7 +67,8 @@ export class AddPage {
                 private config: ConfigService,
                 private data: DataService,
                 private sanitizer:DomSanitizer,
-                public alertCtrl: AlertController
+                public alertCtrl: AlertController,
+                public popoverCtrl: PopoverController
   ) {
 
     this.geolocation = geolocation;
@@ -102,31 +110,47 @@ export class AddPage {
 
   }
 
-  add() {
+  add(event) {
 
-    let locatingAlert = this.alertCtrl.create({
-      title: 'Géolocalisation',
-      subTitle: 'Veuillez réster en face des toilettes pendant votre géolcalisation.',
-      buttons: [
-          {
-            text: 'Annuler',
-            handler: () => {
-              console.log('cancel clicked');
+    if(window.localStorage.getItem('token') == null) {
+      //popover login
+      let popover = this.popoverCtrl.create(SigninSignupPopoverPage);
+      // popover.present({ev: event});
+      popover.present({ev: event});
+      popover.onDidDismiss(
+        (dismissValue) => { 
+          if(dismissValue) {
+            if(dismissValue['SigninSignupFinished'] == true) {
+              this.add(event);
             }
-          },
-          {
-            text: 'Ok',
-            handler: () => {
-              console.log('Agree clicked');
-              this.send();
+          } else {
+            console.log("Dismiss signin signup")
+          }    
+        }
+      )
+    } else {
+        let locatingAlert = this.alertCtrl.create({
+        title: 'Géolocalisation',
+        subTitle: 'Veuillez réster en face des toilettes pendant votre géolcalisation.',
+        buttons: [
+            {
+              text: 'Annuler',
+              handler: () => {
+                console.log('cancel clicked');
+              }
+            },
+            {
+              text: 'Ok',
+              handler: () => {
+                console.log('Agree clicked');
+                this.send();
+              }
             }
-          }
-        ]
-      
-    });
-
-
-    locatingAlert.present();
+          ]
+        
+      });
+      locatingAlert.present();
+    }
   }
 
 

@@ -4,7 +4,7 @@
       Ajouter des toilettes
     </ion-title>
     <ion-buttons end>
-      <button ion-button icon-only (click)="add()" [disabled]="!toilet.name">
+      <button ion-button icon-only (click)="add($event)" [disabled]="!toilet.name">
         <ion-icon name="add"></ion-icon>
         Ajouter
       </button>
@@ -30,10 +30,16 @@
       </ion-row>
 
       <ion-row>
-        <ion-col>
-          <button ion-button class="submit-btn" full  *ngIf="!base64ImageURL" (click)="getPicture()">Ajouter une photo</button>
-          <button ion-button class="submit-btn" full  *ngIf="base64ImageURL"(click)="getPicture()">Changer la photo</button>
-        </ion-col>
+        <ion-item class="center">
+          <button ion-button outline *ngIf="!base64ImageURL" (click)="getPicture()">
+            <ion-icon name="camera"></ion-icon>
+            Ajouter une photo
+          </button>
+          <button ion-button outline *ngIf="base64ImageURL" (click)="getPicture()">
+            <ion-icon name="camera"></ion-icon>
+            Changer la photo
+          </button>
+        </ion-item>
       </ion-row>
 
 

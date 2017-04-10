@@ -1,0 +1,76 @@
+<ion-grid text-center>
+  <ion-row>
+    <ion-col>
+      <ion-segment [(ngModel)]="action" color="primary">
+        <ion-segment-button value="signin">
+          Se connecter
+        </ion-segment-button>
+        <ion-segment-button value="signup">
+          S'inscrire
+        </ion-segment-button>
+      </ion-segment>
+
+    </ion-col>
+  </ion-row>
+
+  <div [hidden]="action == 'signin'">
+
+    <ion-item-group>
+      <ion-row>
+        <ion-item>
+          <ion-input type="text" placeholder="Nom" [(ngModel)]="name"></ion-input>
+        </ion-item>
+      </ion-row>
+      <ion-row>
+        <ion-item>
+          <ion-input type="text" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
+        </ion-item>
+      </ion-row>
+      <ion-row>
+        <ion-item>
+          <ion-input type="password" placeholder="Mot de passe" [(ngModel)]="password"></ion-input>
+        </ion-item>
+      </ion-row>
+
+      <ion-row *ngIf="pictureUrl">
+        <ion-col class="center">
+          <img [src]="pictureUrl" />
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-item class="center">
+          <button ion-button outline (click)="getPicture()"><ion-icon name="camera"> </ion-icon> photo de profil</button>
+        </ion-item>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <button ion-button outline (click)="pushSignup()">S'inscrire</button>
+        </ion-col>
+      </ion-row>
+    </ion-item-group>
+  </div>
+
+
+  <div [hidden]="action == 'signup'">
+    <ion-item-group>
+      <ion-row>
+        <ion-item>
+          <ion-input type="text" placeholder="Adresse mail" [(ngModel)]="email"></ion-input>
+        </ion-item>
+      </ion-row>
+      <ion-row>
+        <ion-item>
+          <ion-input type="password" placeholder="Mot de passe" [(ngModel)]="password"></ion-input>
+        </ion-item>
+      </ion-row>
+      
+      <ion-row>
+        <ion-col>
+          <button ion-button outline (click)="pushSignin()">Se connecter</button>
+        </ion-col>
+      </ion-row>
+    </ion-item-group>
+  </div>
+</ion-grid>

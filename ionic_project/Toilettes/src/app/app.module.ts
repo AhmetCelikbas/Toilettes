@@ -4,6 +4,7 @@ import { MyApp } from './app.component';
 import { AboutPage } from '../pages/about/about';
 import { AddPage } from '../pages/add/add';
 import { ToilettesPage } from '../pages/toilettes/toilettes';
+import { SigninSignupPopoverPage } from '../pages/signin-signup-popover/signin-signup-popover';
 import { TabsPage } from '../pages/tabs/tabs';
 
 import { StatusBar } from '@ionic-native/status-bar';
@@ -21,6 +22,7 @@ import { Geolocation } from 'ionic-native';
     AboutPage,
     AddPage,
     ToilettesPage,
+    SigninSignupPopoverPage,
     TabsPage
   ],
   imports: [
@@ -33,6 +35,7 @@ import { Geolocation } from 'ionic-native';
     AboutPage,
     AddPage,
     ToilettesPage,
+    SigninSignupPopoverPage,
     TabsPage
   ],
   providers: [
