@@ -387,10 +387,23 @@ router.post('/signup', (req, res) => {
 				name: req.body.name,
 				email: req.body.email,
 				password: req.body.password,
-				picture: req.body.picture,
 				createdAt: Date.now(),
 				updatedAt: Date.now()
 			}).then((user) => {
+
+				if(req.body.picture != null){
+					fs.writeFile(	
+						"pictures/users/" + user.id + "." + req.body.pictureMimeType.split('/')[1], 
+						req.body.picture, 'base64', 
+						function(err) {
+							if(err) {
+								console.log(err);
+							} 
+						}
+					);
+				}
+
+
 				// on create user, create a token
 				let token = jwt.sign(
 					{
