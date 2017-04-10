@@ -6,7 +6,7 @@ import {  AlertController,
           LoadingController, 
           PopoverController } from 'ionic-angular';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Ionic2RatingModule } from 'ionic2-rating';
+// import { Ionic2RatingModule } from 'ionic2-rating';
 import {  Geolocation,
           Camera, 
           CameraOptions } from 'ionic-native';
@@ -71,7 +71,7 @@ export class AddPage {
                 public popoverCtrl: PopoverController
   ) {
 
-    this.geolocation = geolocation;
+    // this.geolocation = geolocation;
     this.toilet = new Toilet;
 
 
@@ -115,7 +115,6 @@ export class AddPage {
     if(window.localStorage.getItem('token') == null) {
       //popover login
       let popover = this.popoverCtrl.create(SigninSignupPopoverPage);
-      // popover.present({ev: event});
       popover.present({ev: event});
       popover.onDidDismiss(
         (dismissValue) => { 
