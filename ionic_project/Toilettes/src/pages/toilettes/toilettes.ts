@@ -90,12 +90,15 @@ export class ToilettesPage {
             // ADD MARKER ON MAP
             this.map.addMarker({
               'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lng']),
-              'title': this.toilets[toilet]['Details']['name'],
+              'title': "Voir détails",
               "snippet": "",
               'styles' : {
                 'text-align': 'center',
                 'font-weight': 'bold'
-              }
+              },
+              'infoClick': (marker) => {
+                  console.log("Toilet clicked = " + this.toilets[toilet]['Details']['id'])
+                }
             });
 
         }
