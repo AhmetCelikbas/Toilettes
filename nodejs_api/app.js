@@ -84,73 +84,69 @@ router.get('/', (req, res) => {
 	res.json({ message: 'Yohoho! Welcome to our api!' });
 });
 
-/**
- * Get all routes around the given position
- */
-router.route('/toilets')
-	// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
-    .post(formParser, (req, res) => {
-		// getting the address from gps location
-		geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
-			models.Toilet.create({
-					id_osm: req.body.id_osm,
-					id_user: req.token.id_user,
-					lat: req.body.lat,
-					lng: req.body.lon,
-					picture: null,
+
+// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
+router.post('/toilets', (req, res) => {
+
+
+
+
+		models.Toilet.create({
+				id_osm: req.body.id_osm,
+				id_user: req.token.id_user,
+				lat: req.body.lat,
+				lng: req.body.lon,
+				picture: null,
+				createdAt: Date.now(),
+				updatedAt: Date.now()
+			}).then((toilet) => {
+				models.Details.create({
+					id_toilet: toilet.id,
+					name: req.body.Details.name,
+					access: req.body.Details.access,
+					exist: req.body.Details.exist,
+					rating: req.body.Details.rating,
+					fee: req.body.Details.fee,
+					male: req.body.Details.male,
+					female: req.body.Details.male,
+					wheelchair: req.body.Details.wheelchair,
+					drinking_water: req.body.Details.drinking_water,
+					placeType: req.body.Details.placeType,
 					createdAt: Date.now(),
 					updatedAt: Date.now()
 				}).then((toilet) => {
-					models.Details.create({
-						id_toilet: toilet.id,
-						name: req.body.Details.name,
-						access: req.body.Details.access,
-						exist: req.body.Details.exist,
-						rating: req.body.Details.rating,
-						fee: req.body.Details.fee,
-						male: req.body.Details.male,
-						female: req.body.Details.male,
-						wheelchair: req.body.Details.wheelchair,
-						drinking_water: req.body.Details.drinking_water,
-						placeType: req.body.Details.placeType,
-						address: data.results[0].formatted_address,
-						createdAt: Date.now(),
-						updatedAt: Date.now()
-					}).then((toilet) => {
-						if(req.body.picture != null){
-							fs.writeFile(	
-								"pictures/toilets/" + toilet.id + "." + req.body.pictureMimeType.split('/')[1], 
-								req.body.picture, 'base64', 
-								function(err) {
-									if(err) {
-										console.log(err);
-									} 
-								}
-							);
-						}
-						res.json({ success: true, message: 'Toilets added.' });
+					if(req.body.picture != null){
+						fs.writeFile(	
+							"pictures/toilets/" + toilet.id_toilet + "." + req.body.pictureMimeType.split('/')[1], 
+							req.body.picture, 'base64', 
+							function(err) {
+								if(err) {
+									console.log(err);
+								} 
+							}
+						);
+					}
+					res.json({ success: true, message: 'Toilets added.' });
 
-					});
-					
-				}).catch((err) => {
-					console.log(err);
 				});
-		}, { sensor: true, language: 'fr' });
+				
+			}).catch((err) => {
+				console.log(err);
+			});
 
-    })
+});
+
+/**
+ * Get all routes around the given position
+ */
+router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (req, res) => {
 	// get all the toilets (accessed at GET http://localhost:8080/v1/api/toilets)
-    .get((req, res) => {
-		let bb = {
-			bl: {
-				lat: req.params.southWest.lat,
-				lng: req.params.southWest.lng
-			},
-			tr: {
-				lat: req.params.northEast.lat,
-				lng: req.params.northEast.lng
-			}
-		};
-		let url = 'http://overpass-api.de/api/interpreter?[out:json];(node[amenity=toilets]('+bb.bl.lat+','+bb.bl.lng+','+bb.tr.lat+','+bb.tr.lng+'););out;';
+		let url = 'http://overpass-api.de/api/interpreter?[out:json];(node[amenity=toilets](' + 
+			req.params.southWestLat + ',' + 
+			req.params.southWestLon + ',' + 
+			req.params.northEastLat + ',' + 
+			req.params.northEastLon + '););out;';
+
 		let donneesRecues = "";
 
 		let reqOverpass = http.get(url, (resOverpass) => {
@@ -161,83 +157,51 @@ router.route('/toilets')
 
 			resOverpass.on('end', () => {
 				console.log('La requete est terminee.');
-				let json = JSON.parse(donneesRecues);
-				let toilets = Array();
-
-				json.forEach((t, index, array) => {
-					models.Toilet.findOne({
-						where: {id_osm: id}
-					}).then((toilet) =>{
-						if (!toilet) {
-							models.Toilet.create({
-								id_osm: req.body.id_osm,
-								lat: req.body.lat,
-								lon: req.body.lon,
-								picture: null
-							}).then((toilet) => {
-								models.Details.create({
-									id_toilet: null,
+				let json = JSON.parse(donneesRecues)['elements'];
+				
+				// add osm nodes in db, (duplicates are ignored through the catch())
+				for(var index in json) {
+					models.Toilet.create({
+						id_osm: json[index]['id'],
+						lat: json[index].lat,
+						lng: json[index].lon,
+						picture: null,
+						createdAt: Date.now(),
+						updatedAt: Date.now()
+					}).then(
+						(toilet) => {
+							models.Details.create({
+									id_toilet: toilet.id,
 									name: null,
-									access: null,
-									exist: null,
-									rating: null,
-									fee: null,
-									male: null,
-									wheelchair: null,
-									drinking_water: null,
+									access: false,
+									exist: false,
+									rating: 0,
+									fee: false,
+									male: false,
+									female: false,
+									wheelchair: false,
+									drinking_water: false,
 									placeType: null,
-									address: data.results[0].formatted_address
-								}).then((toilet) => {});
-								res.setHeader('Content-Type', 'text/plain');
-								res.end(JSON.stringify(response));
-							})
+									address: null,
+									createdAt: Date.now(),
+									updatedAt: Date.now()
+								}).then((details) => {});
 						}
-					});
-				});
+					).catch(() => {})
+				}
 
+				// now get toilets from db
 				models.Toilet.findAll({
-					include: [{ model: models.Details, as: 'Details'}, { model: models.Comment, as: 'Comment'}]
-				}).then(function(data) {
-					for (var i=0; i < data.length; i++) {
-						/*let toilet = {
-							id: data[i].id,
-							id_osm: data[i].id_osm,
-							lat: data[i].lat,
-							lon: data[i].lon,
-							picture: data[i].picture,
-							details: {
-								id: data[i].Details.id,
-								name: data[i].Details.name,
-								access: data[i].Details.access,
-								exist: data[i].Details.exist,
-								rating: data[i].Details.rating,
-								fee: data[i].Details.fee,
-								male: data[i].Details.male,
-								wheelchair: data[i].Details.wheelchair,
-								drinking_water: data[i].Details.drinking_water,
-								placeType: data[i].Details.placeType,
-								address: data[i].Details.address
-							}
-						};
-						if (Object.keys(data[i].Comment).length === 0 && obj.constructor === Object) {
-							toilet.push({
-								comments: {
-									id: data[i].Comment.id,
-									comment: data[i].Comment.comment
-								}
-							});
-						}
-						*/
-						let toilet = data;
-
-						if( bb.bl.lat <= toilet.lat && toilet.lat <= bb.tr.lat && bb.bl.lng <= toilet.lng && toilet.lng <= bb.tr.lng ) {
-							// Point is in bounding box
-							toilets.push(toilet);
-						}						
-					}
+					where: [ "lat >= ? AND lng >= ? AND lat <= ? AND lng <= ?",
+								req.params.southWestLat,
+								req.params.southWestLon,
+								req.params.northEastLat,
+								req.params.northEastLon,
+					],
+					include: [{ model: models.Details, as: 'Details'}, { model: models.Comments, as: 'Comments'}]
+				}).then((data) => {
+						res.json(data);	
 				});
-				res.setHeader("Content-Type", "application/json")
-				res.json(JSON.parse(toilets));
 			});
 		});
 		reqOverpass.on('error', (e) => {
@@ -252,6 +216,13 @@ router.route('/toilets')
  */
 router.route('/toilet/:id')
 	.get((req, res) => {
+
+	// getting the address from gps location
+		// geocoder.reverseGeocode( req.body.lat, req.body.lon, ( err, data ) => {	
+		// 	address: data.results[0].formatted_address,
+		// }, { sensor: true, language: 'fr' });
+
+
 		let id = req.params.id;
 		
 		models.Toilet.findOne({
@@ -375,8 +346,6 @@ router.get('/toilet/:id/comments', (req, res) => {
  * Register a new user
  */
 router.post('/signup', (req, res) => {
-
-	console.log(req.body);
 
 	res.setHeader("Content-Type", "application/json");
 	models.User.findOne({

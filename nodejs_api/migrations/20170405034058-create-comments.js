@@ -11,7 +11,7 @@ module.exports = {
       id_toilet: {
         type: Sequelize.INTEGER
       },
-      user_id: {
+      id_user: {
         type: Sequelize.INTEGER
       },
       comment: {

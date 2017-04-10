@@ -11,14 +11,13 @@ module.exports = function(sequelize, DataTypes) {
 		wheelchair: DataTypes.BOOLEAN,
 		drinking_water: DataTypes.BOOLEAN,
 		placeType: DataTypes.STRING,
-		address: DataTypes.STRING,
 		createdAt: DataTypes.DATE,
    		updatedAt: DataTypes.DATE
 	}, {
 		classMethods: {
 			associate: function(models) {
 				// associations can be defined here
-				Details.belongsTo(models.Toilet, {foreignKey: 'id_toilet'});
+				Details.belongsTo(models.Toilet, { foreignKey: "id" });
 			}
 		}
 	});

@@ -9,7 +9,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       id_osm: {
-        type: Sequelize.BIGINT
+        type: Sequelize.BIGINT,
+        unique: true
       },
       id_user: {
         type: Sequelize.INTEGER
