@@ -95,7 +95,11 @@ export class ToilettesPage {
         this.map.clear()
         console.log("nearby toilets loaded")
         for(let toilet in this.toilets){
-            console.log("Add marker for toilet = " + this.toilets[toilet]['Details']['id'])
+            console.log("Add marker for toilet = " + this.toilets[toilet]['id'])
+
+            let toiletData = this.toilets[toilet];
+
+
             // ADD MARKER ON MAP
             this.map.addMarker({
               'position': new GoogleMapsLatLng(this.toilets[toilet]['lat'], this.toilets[toilet]['lng']),
@@ -106,9 +110,9 @@ export class ToilettesPage {
                 'font-weight': 'bold'
               },
               'infoClick': (marker) => {
-                  console.log("Toilet clicked = " + this.toilets[toilet]['Details']['id'])
+                  console.log("Toilet clicked = " + toiletData['id'])
                     this.navCtrl.push(ToiletDetailsPopoverPage, {
-                      toiletData: this.toilets[toilet] //Bug ? toujours le meme objet passé sur ce click listner
+                      toiletData: toiletData //Bug ? toujours le meme objet passé sur ce click listner
                     });
 
 
