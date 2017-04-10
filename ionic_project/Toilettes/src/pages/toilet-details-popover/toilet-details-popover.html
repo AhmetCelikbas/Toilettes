@@ -1,0 +1,125 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Détails des toilettes
+    </ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="edit($event)">
+        Modifier
+      </button>
+    </ion-buttons>
+
+
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-item-divider color="light">Nom des toilettes</ion-item-divider>
+
+    <ion-item-group>
+      <ion-item>
+        <ion-input type="text" placeholder="Nom des toilettes" name="name" [(ngModel)]="toilet.name"></ion-input>
+      </ion-item>
+
+      <ion-item-divider color="light">Photo</ion-item-divider>
+     <ion-row *ngIf="base64ImageData">
+        <ion-col class="center">
+          <img [src]="base64ImageURL" />
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-item class="center" [hidden]="imageLoaded">
+          Chargement de l'image ...
+        </ion-item>
+
+        <ion-item class="center" [hidden]="!imageLoaded">
+          <button ion-button outline *ngIf="!base64ImageData" (click)="getNewPicture()">
+            <ion-icon name="camera"></ion-icon>
+            Ajouter une photo
+          </button>
+          <button ion-button outline *ngIf="base64ImageData" (click)="getNewPicture()">
+            <ion-icon name="camera"></ion-icon>
+            Changer la photo
+          </button>
+        </ion-item>
+      </ion-row>
+
+
+      <ion-item-divider color="light">Détails</ion-item-divider>
+      <ion-item>
+        <ion-label> Accessible</ion-label>
+        <ion-toggle checked="false" name="access" [(ngModel)]="toilet.access" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Existe</ion-label>
+        <ion-toggle checked="false" name="exist" [(ngModel)]="toilet.exist" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Gratuit</ion-label>
+        <ion-toggle checked="false" name="fee" [(ngModel)]="toilet.fee" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Pour les hommes</ion-label>
+        <ion-toggle checked="false" name="male" [(ngModel)]="toilet.male" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Pour les femmes</ion-label>
+        <ion-toggle checked="false" name="female" [(ngModel)]="toilet.female" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Fauteuil roulant</ion-label>
+        <ion-toggle checked="false" name="wheelchair" [(ngModel)]="toilet.wheelchair" ></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label> Eau potable</ion-label>
+        <ion-toggle checked="false" name="drinking_water" [(ngModel)]="toilet.drinking_water" ></ion-toggle>
+      </ion-item>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col class="noteLabel">
+            Note
+          </ion-col>
+          <ion-col class="note">
+            <rating name="rating" [(ngModel)]="toilet.rating" 
+              readOnly="false"
+              max="5"
+              emptyStarIconName="star-outline"
+              halfStarIconName="star-half"
+              starIconName="star"
+              nullable="false"  
+            ></rating>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <ion-item-divider color="light">Type de toilettes</ion-item-divider>
+      <ion-list radio-group name="placeType" [(ngModel)]="toilet.placeType">
+        <ion-item>
+          <ion-label>Publiques</ion-label>
+          <ion-radio value="public"></ion-radio>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Restaurant</ion-label>
+          <ion-radio value="restaurant"></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Centre commercial</ion-label>
+          <ion-radio  value="shopingCenter" ></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Station carburant</ion-label>
+          <ion-radio value="gasStation" ></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Bar</ion-label>
+          <ion-radio value="pub" ></ion-radio>
+        </ion-item>
+      </ion-list>
+    </ion-item-group>
+</ion-content>

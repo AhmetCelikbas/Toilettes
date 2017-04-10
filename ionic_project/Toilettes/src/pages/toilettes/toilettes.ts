@@ -1,6 +1,8 @@
+
 import { Component } from '@angular/core';
 import {  Platform, 
-          NavController 
+          NavController,
+          Events 
       } from 'ionic-angular';
 import {  GoogleMap,
           GoogleMapsEvent,
@@ -11,6 +13,7 @@ import {  GoogleMap,
         } from 'ionic-native';
 import { ConfigService } from '../../services/config.service';
 import { DataService } from '../../services/data.service';
+import { ToiletDetailsPopoverPage } from '../toilet-details-popover/toilet-details-popover';
 
 
 @Component({
@@ -32,13 +35,19 @@ export class ToilettesPage {
   constructor(  public platform: Platform, 
                 public navCtrl: NavController,
                 private config: ConfigService,
-                private data: DataService
+                private data: DataService,
+                public events: Events
                 ) {
     this.geolocationOptions = {
       enableHighAccuracy: true      // Force Google Maps Plugin To locate user with a high accuracy
     };
     this.mapReady = false;
     this.toiletsLoadingFinished = false;
+
+    this.events.subscribe('toiletEdited',() => {
+      this.loadNearbyToilets();
+    });
+
   }
 
 
@@ -98,6 +107,11 @@ export class ToilettesPage {
               },
               'infoClick': (marker) => {
                   console.log("Toilet clicked = " + this.toilets[toilet]['Details']['id'])
+                    this.navCtrl.push(ToiletDetailsPopoverPage, {
+                      toiletData: this.toilets[toilet]
+                    });
+
+
                 }
             });
 

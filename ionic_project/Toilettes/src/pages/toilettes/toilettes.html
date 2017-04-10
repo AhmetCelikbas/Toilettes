@@ -17,7 +17,7 @@
   <ion-row >
     <ion-col class="center">
         <button ion-button outline (click)="loadNearbyToilets()" *ngIf="toiletsLoadingFinished" [disabled]="!mapReady">Trouver des toilettes</button>
-        <button ion-button outline (click)="loadNearbyToilets()" *ngIf="!toiletsLoadingFinished" [disabled]="!mapReady">Loading ...</button>
+        <button ion-button outline (click)="loadNearbyToilets()" *ngIf="!toiletsLoadingFinished" [disabled]="!mapReady">Recherche en cours ...</button>
     </ion-col>
   </ion-row>
 </ion-content>
