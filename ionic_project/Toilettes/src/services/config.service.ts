@@ -17,7 +17,9 @@ export class ConfigService {
   apiVerbs = {
       getToilets : "/mock_liste_toilettes.php",                  // Get user nearby toilets
       createToilet : "/mock_liste_toilettes.php",                // Get user nearby toilets
-      toilets : "/toilets"                                     // add new toilet
+      toilets : "/toilets",                                     // add new toilet
+      signup : "/signup",                                     // signup
+      authenticate : "/authenticate"                                     // authenticate
 
   }
 
