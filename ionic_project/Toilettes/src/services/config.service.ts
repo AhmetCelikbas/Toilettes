@@ -10,8 +10,8 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class ConfigService {
   
-  // apiUrl = "http://ahmetcelikbas.fr:8080/v1/api";
-  apiUrl = "http://172.20.10.5:8080/v1/api";
+  apiUrl = "http://ahmetcelikbas.fr:8080/v1/api";
+  // apiUrl = "http://172.20.10.5:8080/v1/api";
   GoogleMapsApiKey = "AIzaSyDE99utD1l0leasTivb7AuNw_Qk1DzSY2c"; // API KEY FOR ADDRESS REQUEST SEARCH FROM POSITION (lat, lng)
   
   apiVerbs = {
