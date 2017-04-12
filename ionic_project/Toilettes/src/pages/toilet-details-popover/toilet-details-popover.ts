@@ -222,7 +222,7 @@ send(){
     sendingSpinnerAlert.present();
 
 
-      this.data.post(this.config.apiVerbs.toilet + "/" + this.toilet.id, toiletData).then(
+      this.data.put(this.config.apiVerbs.toilet + "/" + this.toilet.id, toiletData).then(
         (res) => {
           console.log("success");
           sendingSpinnerAlert.dismiss().then(
