@@ -66,7 +66,7 @@ export class ToilettesPage {
   private loadNearbyToilets() {
     this.toiletsLoadingFinished = false;
     // calculate nearby area
-    this.userPosition = new GoogleMapsLatLng(45.185757, 5.749789);
+    // this.userPosition = new GoogleMapsLatLng(45.185757, 5.749789);
 
     let toiletSearchArea = {
       southWest : {
