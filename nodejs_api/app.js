@@ -67,33 +67,36 @@ router.get('/', (req, res) => {
  * Create a toilet
  */
 router.post('/toilets', (req, res) => {
-	// getting the address from gps location
-	geocoder.reverseGeocode( req.body.lat, req.body.lng, ( err, data ) => {	
-		models.Toilet.create({
-			id_osm: req.body.id_osm,
-			id_user: req.body.id_user,
-			lat: req.body.lat,
-			lng: req.body.lng,
-			picture: req.body.picture
-		}).then((toilet) => {
-			models.Details.create({
-				id_toilet: toilet.id,
-				name: req.body.details.name,
-				access: req.body.details.access,
-				exist: req.body.details.exist,
-				fee: req.body.details.fee,
-				male: req.body.details.male,
-				wheelchair: req.body.details.wheelchair,
-				drinking_water: req.body.details.drinking_water,
-				placeType: req.body.details.placeType,
-				address: data.results[0].formatted_address
-			}).then((toilet) => {});
-			res.end(JSON.stringify(data));
-		}).catch((err) => {
-			console.log(err);
-		});
-	}, { sensor: true, language: 'fr' });
-	res.end();
+	if (req.decoded) {
+		// getting the address from gps location
+		geocoder.reverseGeocode( req.body.lat, req.body.lng, ( err, data ) => {	
+			models.Toilet.create({
+				id_osm: req.body.id_osm,
+				id_user: req.decoded.id,
+				lat: req.body.lat,
+				lng: req.body.lng,
+				picture: req.body.picture
+			}).then((toilet) => {
+				models.Details.create({
+					id_toilet: toilet.id,
+					name: req.body.details.name,
+					access: req.body.details.access,
+					exist: req.body.details.exist,
+					fee: req.body.details.fee,
+					male: req.body.details.male,
+					wheelchair: req.body.details.wheelchair,
+					drinking_water: req.body.details.drinking_water,
+					placeType: req.body.details.placeType,
+					address: data.results[0].formatted_address
+				}).then((toilet) => {});
+				res.end(JSON.stringify(data));
+			}).catch((err) => {
+				console.log(err);
+			});
+		}, { sensor: true, language: 'fr' });
+	} else {
+		res.json({success: false, message: 'Not allowed to post toilets.'});
+	}
 });
 
 /**
