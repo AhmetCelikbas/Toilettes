@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import {PopoverController, NavController} from 'ionic-angular';
 
 import { SigninSignupPopoverPage } from '../signin-signup-popover/signin-signup-popover';
+import { AccountPage } from '../account/account';
 
 
 @Component({
@@ -18,21 +19,18 @@ export class AboutPage {
     ) {
   }
 
-  getToken(){
-    return window.localStorage.getItem('token');
-  }
 
-  logout(){
-    window.localStorage.removeItem('token');
-    this.token = null;
-  }
 
-  login(){
+  account(event){
+    if(window.localStorage.getItem('token') == null) {
+      //popover login
+      let signinSignupPopover = this.popoverCtrl.create(SigninSignupPopoverPage);
+      signinSignupPopover.present({ev: event});
+    } else {
+      let accountPopover = this.popoverCtrl.create(AccountPage);
+      accountPopover.present({ev: event});
+    }
 
-    //popover login
-    let popover = this.popoverCtrl.create(SigninSignupPopoverPage);
-      // popover.present({ev: event});
-      popover.present({ev: event});
 
   }
 

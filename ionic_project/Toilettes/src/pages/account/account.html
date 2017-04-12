@@ -1,0 +1,48 @@
+<ion-grid text-center>
+    <ion-item-group>
+      <ion-row>
+        <ion-item>
+          <ion-label color="primary" stacked>Nom</ion-label>
+          <ion-input type="text" placeholder="Nom" [(ngModel)]="user.name"></ion-input>
+        </ion-item>
+      </ion-row>
+      <ion-row>
+        <ion-item>
+          <ion-label color="primary" stacked>Adresse mail</ion-label>
+          <ion-input type="email" disabled placeholder="Adresse mail" [(ngModel)]="user.email"></ion-input>
+        </ion-item>
+      </ion-row>
+      <ion-row>
+        <ion-item>
+          <ion-label color="primary" stacked>Nouveau mot de passe</ion-label>
+          <ion-input type="password" placeholder="Mot de passe" [(ngModel)]="user.newPassword"></ion-input>
+        </ion-item>
+      </ion-row>
+
+      <ion-row>
+        <ion-item>
+          <ion-label color="primary" stacked>Photo de profil</ion-label>
+        </ion-item>
+      </ion-row>
+
+      <ion-row *ngIf="user.picture != null">
+        <ion-item class="center">
+          <img [src]="pictureUrl" />
+        </ion-item>
+      </ion-row>
+
+      <ion-row>
+        <ion-item class="center">
+          <button ion-button outline *ngIf="user.picture == null" (click)="getPicture()"><ion-icon name="camera"> </ion-icon> Ajouter une photo</button>
+          <button ion-button outline *ngIf="user.picture != null" (click)="getPicture()"><ion-icon name="camera"> </ion-icon> Changer la photo</button>
+        </ion-item>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <button ion-button outline (click)="update()">Modifier</button>
+          <button ion-button outline (click)="logout()">Se déconnecter</button>
+        </ion-col>
+      </ion-row>
+    </ion-item-group>
+</ion-grid>
