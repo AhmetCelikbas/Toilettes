@@ -124,7 +124,7 @@ router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (
 				geocoder.reverseGeocode(json[index].lat, json[index].lon, ( err, data ) => {	
 					models.Toilet.create({
 						id_osm: json[index]['id'],
-						id_user: 0,
+						id_user: 1,
 						lat: json[index].lat,
 						lng: json[index].lon,
 						picture: ""
