@@ -3,78 +3,57 @@ var bodyParser = require('body-parser');
 var sqlite3 = require('sqlite3').verbose();
 var geocoder = require('geocoder');
 var http = require('http');
-var cors = require('cors')
 var jwt = require('jsonwebtoken');
+var cors = require('cors');
 var fs = require("fs");
 var express = require('express');
 var app = express();
-
-/**
- * Allows to access the database and
- * make CRUD operations with ORM sequelize
- */
-var models = require('./models');
+var models = require('./models'); // allows to access the database and make CRUD operations with ORM sequelize
 
 // Crée un convertisseur de données de formulaire
-// var formParser = bodyParser.urlencoded({ extended: false });
-var formParser = bodyParser.json();
-
-// Support encoded bodies
-app.use(formParser);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Support cors
 app.use(cors({credentials: true, origin: true}));
+
 /**
  * Get an instance of the express Router
  * and set '/v1/api' as prefix for all routes 
  */
 let router = express.Router();
-var routerBasePrefix = '/v1/api';
-app.use(routerBasePrefix, router);
+app.use('/v1/api', router);
 
 let secret = 'Bat0193726485Man';
 
 // route middleware to verify a token
 router.use((req, res, next) => {
-	// check header or url parameters or post parameters for token
-	let token = req.headers['authorization'];
-	// We want users to be authenticated for post methods only
-	if(req.method == "POST") {
-		// we don't check for token on auth and signup routes
-		if(req.path != "/authenticate"){
-			if(req.path != "/signup"){
-				console.log(req.path);
-				// decode token if exists
-				if (token) {
-					// verifies secret and checks exp
-					jwt.verify(token, secret, (err, decoded) => {      
-						if (err) {
-							return res.json({ success: false, message: 'Failed to authenticate token.' });    
-						} else {
-							// if everything is good, save to request for use in other routes
-							req.token = decoded;
-							next();
-						}
-					});
-				} else {
-					// if there is no token
-					// return an error
-					return res.status(403).send({ 
-						success: false, 
-						message: 'No token provided.' 
-					}); 
-				}
-			} else {
-				next();
+	// check header and decode token if exists else continue
+	if (req.headers.authorization) {
+		// verifies secret and checks expiration
+		jwt.verify(req.headers.authorization, secret, (err, decoded) => {      
+			if (err) {
+				return res.json({ success: false, message: 'Failed to authenticate token.' });    
 			}
-		} else {
+
+			// if everything is good, save to request for use in other routes
+			req.decoded = decoded;
+			console.log(decoded)
 			next();
-		}
+		});
 	} else {
+		// if there is no token
+		// return an error
+		/*return res.status(403).send({ 
+			success: false, 
+			message: 'No token provided.' 
+		});*/
 		next();
 	}
 });
 
+
+/* ==================================================	 R O U T E S 	================================================== */
 
 /**
  * Test route to make sure everything is working (accessed at GET http://localhost:8080/v1/api)
@@ -84,56 +63,37 @@ router.get('/', (req, res) => {
 	res.json({ message: 'Yohoho! Welcome to our api!' });
 });
 
-
-// create a toilet (accessed at POST http://localhost:8080/v1/api/toilets)
+/**
+ * Create a toilet
+ */
 router.post('/toilets', (req, res) => {
-
-
-
-
+	// getting the address from gps location
+	geocoder.reverseGeocode( req.body.lat, req.body.lng, ( err, data ) => {	
 		models.Toilet.create({
-				id_osm: req.body.id_osm,
-				id_user: req.token.id_user,
-				lat: req.body.lat,
-				lng: req.body.lon,
-				picture: null,
-				createdAt: Date.now(),
-				updatedAt: Date.now()
-			}).then((toilet) => {
-				models.Details.create({
-					id_toilet: toilet.id,
-					name: req.body.Details.name,
-					access: req.body.Details.access,
-					exist: req.body.Details.exist,
-					rating: req.body.Details.rating,
-					fee: req.body.Details.fee,
-					male: req.body.Details.male,
-					female: req.body.Details.male,
-					wheelchair: req.body.Details.wheelchair,
-					drinking_water: req.body.Details.drinking_water,
-					placeType: req.body.Details.placeType,
-					createdAt: Date.now(),
-					updatedAt: Date.now()
-				}).then((toilet) => {
-					if(req.body.picture != null){
-						fs.writeFile(	
-							"pictures/toilets/" + toilet.id_toilet + "." + req.body.pictureMimeType.split('/')[1], 
-							req.body.picture, 'base64', 
-							function(err) {
-								if(err) {
-									console.log(err);
-								} 
-							}
-						);
-					}
-					res.json({ success: true, message: 'Toilets added.' });
-
-				});
-				
-			}).catch((err) => {
-				console.log(err);
-			});
-
+			id_osm: req.body.id_osm,
+			id_user: req.body.id_user,
+			lat: req.body.lat,
+			lng: req.body.lng,
+			picture: req.body.picture
+		}).then((toilet) => {
+			models.Details.create({
+				id_toilet: toilet.id,
+				name: req.body.details.name,
+				access: req.body.details.access,
+				exist: req.body.details.exist,
+				fee: req.body.details.fee,
+				male: req.body.details.male,
+				wheelchair: req.body.details.wheelchair,
+				drinking_water: req.body.details.drinking_water,
+				placeType: req.body.details.placeType,
+				address: data.results[0].formatted_address
+			}).then((toilet) => {});
+			res.end(JSON.stringify(data));
+		}).catch((err) => {
+			console.log(err);
+		});
+	}, { sensor: true, language: 'fr' });
+	res.end();
 });
 
 /**
@@ -141,75 +101,131 @@ router.post('/toilets', (req, res) => {
  */
 router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (req, res) => {
 	// get all the toilets (accessed at GET http://localhost:8080/v1/api/toilets)
-		let url = 'http://overpass-api.de/api/interpreter?[out:json];(node[amenity=toilets](' + 
-			req.params.southWestLat + ',' + 
-			req.params.southWestLon + ',' + 
-			req.params.northEastLat + ',' + 
-			req.params.northEastLon + '););out;';
+	let url = 'http://overpass-api.de/api/interpreter?[out:json];(node[amenity=toilets](' + 
+		req.params.southWestLat + ',' + 
+		req.params.southWestLon + ',' + 
+		req.params.northEastLat + ',' + 
+		req.params.northEastLon + '););out;';
 
-		let donneesRecues = "";
+	let donneesRecues = "";
 
-		let reqOverpass = http.get(url, (resOverpass) => {
-			resOverpass.on('data', (data) => {
-				console.log('Reception de données...');
-				donneesRecues += data;
-			});
+	let reqOverpass = http.get(url, (resOverpass) => {
+		resOverpass.on('data', (data) => {
+			console.log('Reception de données...');
+			donneesRecues += data;
+		});
 
-			resOverpass.on('end', () => {
-				console.log('La requete est terminee.');
-				let json = JSON.parse(donneesRecues)['elements'];
-				
-				// add osm nodes in db, (duplicates are ignored through the catch())
-				for(var index in json) {
+		resOverpass.on('end', () => {
+			console.log('La requete est terminee.');
+			let json = JSON.parse(donneesRecues)['elements'];
+			
+			// add osm nodes in db, (duplicates are ignored through the catch())
+			for(let index in json) {
+				geocoder.reverseGeocode(json[index].lat, json[index].lon, ( err, data ) => {	
 					models.Toilet.create({
 						id_osm: json[index]['id'],
+						id_user: 0,
 						lat: json[index].lat,
 						lng: json[index].lon,
-						picture: null,
-						createdAt: Date.now(),
-						updatedAt: Date.now()
-					}).then(
-						(toilet) => {
-							models.Details.create({
-									id_toilet: toilet.id,
-									name: null,
-									access: false,
-									exist: false,
-									rating: 0,
-									fee: false,
-									male: false,
-									female: false,
-									wheelchair: false,
-									drinking_water: false,
-									placeType: null,
-									address: null,
-									createdAt: Date.now(),
-									updatedAt: Date.now()
-								}).then((details) => {});
-						}
-					).catch(() => {})
-				}
+						picture: ""
+					}).then((toilet) => {
+						models.Details.create({
+							id_toilet: toilet.id,
+							name: "",
+							access: false,
+							exist: false,
+							rating: 0,
+							fee: false,
+							male: false,
+							female: false,
+							wheelchair: false,
+							drinking_water: false,
+							place_type: "",
+							address: data.results[0].formatted_address
+						}).then((details) => {});
+					}).catch(() => {});
+				}, { sensor: true, language: 'fr' });				
+			}
 
-				// now get toilets from db
-				models.Toilet.findAll({
-					where: [ "lat >= ? AND lng >= ? AND lat <= ? AND lng <= ?",
-								req.params.southWestLat,
-								req.params.southWestLon,
-								req.params.northEastLat,
-								req.params.northEastLon,
-					],
-					include: [{ model: models.Details, as: 'Details'}, { model: models.Comments, as: 'Comments'}]
-				}).then((data) => {
-						res.json(data);	
-				});
+			// now get toilets from db
+			models.Toilet.findAll({
+				where: [ "lat >= ? AND lng >= ? AND lat <= ? AND lng <= ?",
+					req.params.southWestLat,
+					req.params.southWestLon,
+					req.params.northEastLat,
+					req.params.northEastLon,
+				],
+				include: [{ model: models.Details, as: 'Details'}, { model: models.Comments, as: 'Comments'}]
+			}).then((data) => {
+				res.json(data);	
 			});
 		});
-		reqOverpass.on('error', (e) => {
-			console.error(e);
-		});
+	});
+	reqOverpass.on('error', (e) => {
+		console.error(e);
+	});
 });
 
 
+/**
+ * get a specific toilet
+ * or update its picture
+ */
+router.route('/toilet/:id')
+	.get((req, res) => {
+		models.Toilet.findOne({
+			where:{ id: req.params.id}
+		}).then((toilet) => {
+			if (!toilet) {
+				return res.json({message: "Toilet not found"});
+			}
+
+			res.setHeader("Content-Type", "application/json");
+			res.json(toilet.dataValues);
+		}).catch((err) => { 
+			console.log(err);
+		});
+	})
+	.put((req, res) => {
+		models.Toilet.update({
+			picture: req.body.picture
+		}, {
+		  where: { id: req.params.id }
+		}).then((toilet) => {
+			models.Details.update({
+				name: req.body.Details.name,
+				access: req.body.Details.access,
+				exist: req.body.Details.exist,
+				rating: req.body.Details.rating,
+				fee: req.body.Details.fee,
+				male: req.body.Details.male,
+				wheelchair: req.body.Details.wheelchair,
+				drinking_water: req.body.Details.drinking_water,
+				placeType: req.body.Details.placeType
+			}, {
+				where: { id_toilet: req.params.id }
+			}).then((toilet) => {
+				if(req.body.picture != null){
+					fs.writeFile(	
+						"pictures/toilets/" + req.params.id + "." + req.body.pictureMimeType.split('/')[1], 
+						req.body.picture, 'base64', 
+						function(err) {
+							if(err) {
+								console.log(err);
+							} 
+						}
+					);
+				}
+				return res.json({ success: true, message: 'Toilets edited.' });
+			}).catch((err) => {
+				console.log(err);
+			});
+			res.end();
+		}).catch((err) => {
+			console.log(err);
+		});
+	});
+// end route 'toilet/:id'
 
 
 /**
@@ -226,66 +242,63 @@ router.get('/toilet/:id/picture', (req, res) => {
 		res.json({ picture : null})
 	}
 
-
 });
 
 
-
-
 /**
- * update a toilet
+ * Update toilet's details
  */
-router.post('/toilet/:id', formParser, (req, res) => {
-	models.Toilet.update({
-			id_user: req.token.id_user,
-			updatedAt: Date.now()
-		}, { where: { id: req.params.id } }).then((toilet) => {
-			models.Details.update({
-				id_toilet: toilet.id,
-				name: req.body.Details.name,
-				access: req.body.Details.access,
-				exist: req.body.Details.exist,
-				rating: req.body.Details.rating,
-				fee: req.body.Details.fee,
-				male: req.body.Details.male,
-				female: req.body.Details.male,
-				wheelchair: req.body.Details.wheelchair,
-				drinking_water: req.body.Details.drinking_water,
-				placeType: req.body.Details.placeType,
-				createdAt: Date.now(),
-				updatedAt: Date.now()
-			}, { where: { id_toilet: req.params.id } }).then((toilet) => {
-				if(req.body.picture != null){
-					fs.writeFile(	
-						"pictures/toilets/" + req.params.id + "." + req.body.pictureMimeType.split('/')[1], 
-						req.body.picture, 'base64', 
-						function(err) {
-							if(err) {
-								console.log(err);
-							} 
-						}
-					);
-				}
-				res.json({ success: true, message: 'Toilets edited.' });
-			});
-			
-		}).catch((err) => {
-			console.log(err);
-		});
+router.put('/toilet/:id/details', (req, res) => {
+	models.Details.update({
+		name: req.body.Details.name,
+		access: req.body.Details.access,
+		exist: req.body.Details.exist,
+		rating: req.body.Details.rating,
+		fee: req.body.Details.fee,
+		male: req.body.Details.male,
+		wheelchair: req.body.Details.wheelchair,
+		drinking_water: req.body.Details.drinking_water,
+		placeType: req.body.Details.placeType
+	}, {
+		where: { id_toilet: req.params.id }
+	}).catch((err) => {
+		console.log(err);
+	});
+	res.end();
 });
 
 
 /* =======================================================================
  * 							COMMENT SECTION
  * ======================================================================= */
+
 /**
- * Update a comment (= edit) of specific toilet
+ * Get all comments of specific toilet
  */
-router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comments.update({
-		comment: req.body.comment
-	}, {
-		where: { id_toilet: req.params.id }
+router.get('/toilet/:id/comments', (req, res) => {
+	models.Comment.findAll({
+		where:{ id_toilet: req.params.id }
+	}).then((comments) => {
+		if (!comments) {
+			return res.json({ success: false, message: 'Failed to find comments' });
+		}
+		res.setHeader('Content-Type', 'application/json');
+		res.json(comments);
+	}).catch((err) => {
+		console.log(err);
+	});
+});
+
+
+/**
+ * Add a new comment
+ */
+router.post('/toilet/:id/comments', (req, res) => {
+	models.Comment.create({
+		id_toilet: req.params.id,
+		id_user: req.body.id_user,
+		comment: req.body.comment,
+		rating: req.body.rating
 	}).then(() => {
 		res.end();
 	}).catch((err) => {
@@ -297,8 +310,8 @@ router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
 /**
  * Get a comment (= edit) of specific toilet
  */
-router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
-	models.Comments.findById(req.params.id).then((comment) => {
+router.get('/toilet/:id_toilet/comment/:id', (req, res) => {
+	models.Comment.findById(req.params.id).then((comment) => {
 		res.setHeader('Content-Type', 'application/json');
 		res.json(comment);
 	}).catch((err) => {
@@ -308,31 +321,16 @@ router.post('/toilet/:id_toilet/comment/:id', formParser, (req, res) => {
 
 
 /**
- * Add a new comment
+ * Update a comment (= edit) of specific toilet
  */
-router.post('/toilet/:id/comments', formParser, (req, res) => {
-	models.Comments.create({
-		id_toilet: req.params.id,
-		comment: req.body.comment
+router.put('/toilet/:id_toilet/comment/:id', (req, res) => {
+	models.Comment.update({
+		comment: req.body.comment,
+		rating: req.body.rating
+	}, {
+		where: { id_toilet: req.params.id }
 	}).then(() => {
 		res.end();
-	}).catch((err) => {
-		console.log(err);
-	});
-});
-
-
-/**
- * Get all comments of specific toilet
- */
-router.get('/toilet/:id/comments', (req, res) => {
-	models.Comments.findAll({
-		where:{ id_toilet: req.params.id }
-	}).then((comments) => {
-
-
-		res.setHeader('Content-Type', 'application/json');
-		res.json(comments);
 	}).catch((err) => {
 		console.log(err);
 	});
@@ -343,12 +341,13 @@ router.get('/toilet/:id/comments', (req, res) => {
 /* =======================================================================
  * 								USER SECTION
  * ======================================================================= */
+
 /**
  * Register a new user
  */
 router.post('/signup', (req, res) => {
-
 	res.setHeader("Content-Type", "application/json");
+
 	models.User.findOne({
 		where:{ email: req.body.email }
 	}).then((checkEmail) => {
@@ -357,10 +356,8 @@ router.post('/signup', (req, res) => {
 				name: req.body.name,
 				email: req.body.email,
 				password: req.body.password,
-				createdAt: Date.now(),
-				updatedAt: Date.now()
+				picture: req.body.picture
 			}).then((user) => {
-
 				if(req.body.picture != null){
 					fs.writeFile(	
 						"pictures/users/" + user.id + "." + req.body.pictureMimeType.split('/')[1], 
@@ -373,96 +370,96 @@ router.post('/signup', (req, res) => {
 					);
 				}
 
-
 				// on create user, create a token
-				let token = jwt.sign(
-					{
-						id_user: user.id,
-					}, 
-					secret, 
-					{
-						expiresIn: 2629746 // expires in 24 hours (60sec * 60 Min * 24 hours)
-					}
-				);
-
-				// return the information including token as JSON
-				res.json({ success: true, message: 'Account successfully created.', token: token });
+				let token = jwt.sign({id:user.dataValues.id, email:user.dataValues.email, password:user.dataValues.password}, secret, {
+				expiresIn: '24h' // expires in 24 hours
+				});
+				// returns token as JSON
+				res.json({token: token});
 			}).catch((err) => {
 				console.log(err);
 			});
 		} else {
-			res.json({ success: false, message: 'This email is already user by an account.' });
+			res.json({ success: false, message: 'This email is already used.' });
 		}
-
 	}).catch((err) => {
 		console.log(err);
 	});
-
 });
+
 
 /**
  * Identify user with token if login is not empty and correct
  */
 router.post('/authenticate', (req, res) => {
+	res.setHeader("Content-Type", "application/json");
+
 	models.User.findOne({
 		where:{ email: req.body.email, password: req.body.password }
 	}).then((user) => {
-		console.log(user)
-		if (user == null) {
+		if (!user) {
 			res.json({ success: false, message: 'Authentication failed. User not found.' });
-		} else {
-			let token = jwt.sign(
-				{
-					id_user: user.id,
-				}, 
-				secret, 
-				{
-					expiresIn: 2629746 // expires in 24 hours (60sec * 60 Min * 24 hours)
-				}
-			);
-			// return the information including token as JSON
-			res.json({ success: true, message: 'Log in successfully.', token: token });
 		}
 		
+		let token = jwt.sign({id:user.dataValues.id, email:user.dataValues.email, password:user.dataValues.password}, secret, {
+          expiresIn: '24h' // expires in 24 hours
+        });
+
+        // returns token as JSON
+        res.json({ token: token });
 	}).catch((err) => {
 		console.log(err);
 	});
 });
 
+
 /**
- * Get a user
+ * Get or update user account
  */
-router.get('/user/:id', (req, res) => {
-	
-	models.User.findOne({
-		where:{ id: req.params.id }
-	}).then((user) => {
-		if (user == null) {
-			res.json({ success: false, message: 'Failed to find user' });
+router.route('/user')
+	// get user account
+	.get((req, res) => {
+		res.setHeader("Content-Type", "application/json");
+
+		if (req.decoded) {
+			models.User.findOne({
+				where:{ id: req.decoded.id }
+			}).then((user) => {
+				if (!user) {
+					return res.json({ success: false, message: 'Failed to find user' });
+				}
+				return res.json(user.dataValues);
+			}).catch((err) => {
+				console.log(err);
+			});
 		} else {
-			res.json(user);
+			res.json({success: false, message: 'Failed to get user account.'});
 		}
-	}).catch((err) => {
-		console.log(err);
-	});
-});
+	})
+	// update user data
+	.put((req, res) => {
+		res.setHeader("Content-Type", "application/json");
 
-/**
- * Update user data
- */
-router.post('/user/:id', (req, res) => {
-	models.User.update({
-		name: DataTypes.STRING,
-		picture: DataTypes.STRING,
-		updatedAt: DataTypes.DATE
-	}, {
-		where: { id: req.params.id }
-	}).then((user) => {
-		res.json(user);
-	}).catch((err) => {
-		console.log(err);
+		if (req.decoded) {
+			models.User.update({
+				name: req.body.name,
+				picture: req.body.picture
+				//updatedAt: new Date().toLocaleString().replace('à ', '') //new Date().toISOString().split('.')[0].replace('T', " ")
+			}, {
+				where: { id: req.decoded.id }
+			}).then((user) => {
+				if (!user) {
+					return res.json({ success: false, message: 'Failed to find user' });
+				}
+				res.json(user);
+			}).catch((err) => {
+				console.log(err);
+			});
+		} else {
+			res.json({success: false, message: 'Failed to update account.'});
+		}
 	});
-});
+// end route 'user'
 
 
 app.use((req, res) => {
