@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       id_toilet: {
-        type: Sequelize.BIGINT
+        type: Sequelize.INTEGER
       },
       name: {
         type: Sequelize.STRING
@@ -19,9 +19,6 @@ module.exports = {
       },
       exist: {
         type: Sequelize.BOOLEAN
-      },
-      rating: {
-        type: Sequelize.INTEGER
       },
       fee: {
         type: Sequelize.BOOLEAN
@@ -38,8 +35,12 @@ module.exports = {
       drinking_water: {
         type: Sequelize.BOOLEAN
       },
-      placeType: {
-        type:   Sequelize.STRING
+      place_type: {
+        type:   Sequelize.ENUM,
+        values: ['restaurant', 'public', 'shopping center', 'gas station', 'bar']
+      },
+      address: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
