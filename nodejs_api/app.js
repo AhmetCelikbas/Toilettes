@@ -336,8 +336,7 @@ router.post('/signup', (req, res) => {
 			models.User.create({
 				name: req.body.name,
 				email: req.body.email,
-				password: req.body.password,
-				picture: req.body.picture
+				password: req.body.password
 			}).then((user) => {
 				if(req.body.picture != null){
 					fs.writeFile(	
@@ -409,6 +408,16 @@ router.route('/user')
 				if (!user) {
 					return res.json({ success: false, message: 'Failed to find user' });
 				}
+				var filePath = 'pictures/users/' + req.decoded.id +'.jpeg';
+				if(fs.existsSync(filePath)){
+					var imageData = fs.readFileSync(filePath);
+					var base64data = new Buffer(imageData).toString('base64');
+					user.dataValues.picture = base64data;
+					// res.json({ picture : base64data})
+				} else {
+					user.dataValues.picture = null;
+				}
+				
 				return res.json(user.dataValues);
 			}).catch((err) => {
 				console.log(err);
