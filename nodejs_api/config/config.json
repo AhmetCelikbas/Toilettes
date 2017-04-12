@@ -1,23 +1,14 @@
 {
   "development": {
     "dialect": "sqlite",
-    "storage": "./mydb.db",
-    "define": {
-        "timestamps": false
-    }
+    "storage": "./toilets.db"
   },
   "test": {
     "dialect": "sqlite",
-    "storage": "./mydb.db",
-    "define": {
-        "timestamps": false
-    }
+    "storage": "./toilets.db"
   },
   "production": {
     "dialect": "sqlite",
-    "storage": "./mydb.db",
-    "define": {
-        "timestamps": false
-    }
+    "storage": "./toilets.db"
   }
 }
