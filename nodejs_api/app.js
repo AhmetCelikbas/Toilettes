@@ -158,7 +158,7 @@ router.get('/toilets/:southWestLat/:southWestLon/:northEastLat/:northEastLon', (
 					req.params.northEastLat,
 					req.params.northEastLon,
 				],
-				include: [{ model: models.Details, as: 'Details'}, { model: models.Comments, as: 'Comments'}]
+				include: [{ model: models.Details, as: 'Details'}, { model: models.Comment, as: 'Comment'}]
 			}).then((data) => {
 				res.json(data);	
 			});

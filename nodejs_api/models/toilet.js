@@ -9,9 +9,9 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-        Toilet.hasOne(models.Details, { foreignKey: 'id_toilet' });
-				Toilet.hasMany(models.Comment, { foreignKey: 'id_toilet' });
-				Toilet.belongsTo(models.User, { foreignKey: 'id_user' });
+        Toilet.hasOne(models.Details, { foreignKey: 'id_toilet', as: 'Details' });
+				Toilet.hasMany(models.Comment, { foreignKey: 'id_toilet', as: 'Comment' });
+				Toilet.belongsTo(models.User, { foreignKey: 'id_user', as: 'User' });
       }
     }
   });
