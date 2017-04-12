@@ -4,17 +4,14 @@ module.exports = function(sequelize, DataTypes) {
     id_osm: DataTypes.BIGINT,
     id_user: DataTypes.INTEGER,
     lat: DataTypes.REAL,
-    lng: DataTypes.REAL,
-    picture: DataTypes.STRING,
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE
-
+    lng: DataTypes.REAL
   }, {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-        Toilet.hasOne(models.Details, { foreignKey: 'id_toilet', as: 'Details' });
-				Toilet.hasMany(models.Comments, {foreignKey: 'id_toilet', as: 'Comments' });
+        Toilet.hasOne(models.Details, { foreignKey: 'id_toilet' });
+				Toilet.hasMany(models.Comment, { foreignKey: 'id_toilet' });
+				Toilet.belongsTo(models.User, { foreignKey: 'id_user' });
       }
     }
   });
