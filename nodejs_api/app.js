@@ -245,28 +245,6 @@ router.get('/toilet/:id/picture', (req, res) => {
 });
 
 
-/**
- * Update toilet's details
- */
-router.put('/toilet/:id/details', (req, res) => {
-	models.Details.update({
-		name: req.body.Details.name,
-		access: req.body.Details.access,
-		exist: req.body.Details.exist,
-		rating: req.body.Details.rating,
-		fee: req.body.Details.fee,
-		male: req.body.Details.male,
-		wheelchair: req.body.Details.wheelchair,
-		drinking_water: req.body.Details.drinking_water,
-		placeType: req.body.Details.placeType
-	}, {
-		where: { id_toilet: req.params.id }
-	}).catch((err) => {
-		console.log(err);
-	});
-	res.end();
-});
-
 
 /* =======================================================================
  * 							COMMENT SECTION
