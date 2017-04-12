@@ -79,17 +79,17 @@ router.post('/toilets', (req, res) => {
 			}).then((toilet) => {
 				models.Details.create({
 					id_toilet: toilet.id,
-					name: req.body.details.name,
-					access: req.body.details.access,
-					exist: req.body.details.exist,
-					fee: req.body.details.fee,
-					male: req.body.details.male,
-					wheelchair: req.body.details.wheelchair,
-					drinking_water: req.body.details.drinking_water,
-					placeType: req.body.details.placeType,
+					name: req.body.Details.name,
+					access: req.body.Details.access,
+					exist: req.body.Details.exist,
+					fee: req.body.Details.fee,
+					male: req.body.Details.male,
+					wheelchair: req.body.Details.wheelchair,
+					drinking_water: req.body.Details.drinking_water,
+					placeType: req.body.Details.placeType,
 					address: data.results[0].formatted_address
 				}).then((toilet) => {});
-				res.end(JSON.stringify(data));
+				res.json({success:true, message: "Toilet added."})
 			}).catch((err) => {
 				console.log(err);
 			});
@@ -190,43 +190,35 @@ router.route('/toilet/:id')
 		});
 	})
 	.put((req, res) => {
-		models.Toilet.update({
-			picture: req.body.picture
+		models.Details.update({
+			name: req.body.Details.name,
+			access: req.body.Details.access,
+			exist: req.body.Details.exist,
+			rating: req.body.Details.rating,
+			fee: req.body.Details.fee,
+			male: req.body.Details.male,
+			wheelchair: req.body.Details.wheelchair,
+			drinking_water: req.body.Details.drinking_water,
+			placeType: req.body.Details.placeType
 		}, {
-		  where: { id: req.params.id }
+			where: { id_toilet: req.params.id }
 		}).then((toilet) => {
-			models.Details.update({
-				name: req.body.Details.name,
-				access: req.body.Details.access,
-				exist: req.body.Details.exist,
-				rating: req.body.Details.rating,
-				fee: req.body.Details.fee,
-				male: req.body.Details.male,
-				wheelchair: req.body.Details.wheelchair,
-				drinking_water: req.body.Details.drinking_water,
-				placeType: req.body.Details.placeType
-			}, {
-				where: { id_toilet: req.params.id }
-			}).then((toilet) => {
-				if(req.body.picture != null){
-					fs.writeFile(	
-						"pictures/toilets/" + req.params.id + "." + req.body.pictureMimeType.split('/')[1], 
-						req.body.picture, 'base64', 
-						function(err) {
-							if(err) {
-								console.log(err);
-							} 
-						}
-					);
-				}
-				return res.json({ success: true, message: 'Toilets edited.' });
-			}).catch((err) => {
-				console.log(err);
-			});
-			res.end();
+			if(req.body.picture != null){
+				fs.writeFile(	
+					"pictures/toilets/" + req.params.id + "." + req.body.pictureMimeType.split('/')[1], 
+					req.body.picture, 'base64', 
+					function(err) {
+						if(err) {
+							console.log(err);
+						} 
+					}
+				);
+			}
+			return res.json({ success: true, message: 'Toilets edited.' });
 		}).catch((err) => {
 			console.log(err);
 		});
+		// res.end();
 	});
 // end route 'toilet/:id'
 
