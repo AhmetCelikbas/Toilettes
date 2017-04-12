@@ -165,7 +165,7 @@ export class AddPage {
       let toiletData : Object = {
         id_osm : this.toilet.id_osm,
         lat : resp.coords.latitude,
-        lon : resp.coords.longitude,
+        lng : resp.coords.longitude,
         pictureMimeType : this.imageMimeType,
         picture : this.base64ImageData,
         Details : {
