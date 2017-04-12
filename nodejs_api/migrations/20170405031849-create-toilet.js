@@ -9,8 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       id_osm: {
-        type: Sequelize.BIGINT,
-        unique: true
+        type: Sequelize.BIGINT
       },
       id_user: {
         type: Sequelize.INTEGER
@@ -20,9 +19,6 @@ module.exports = {
       },
       lng: {
         type: Sequelize.REAL
-      },
-      picture: {
-        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
