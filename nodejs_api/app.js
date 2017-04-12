@@ -433,7 +433,7 @@ router.route('/user')
 		if (req.decoded) {
 			models.User.update({
 				name: req.body.name,
-				picture: req.body.picture
+				password: req.body.password
 				//updatedAt: new Date().toLocaleString().replace('à ', '') //new Date().toISOString().split('.')[0].replace('T', " ")
 			}, {
 				where: { id: req.decoded.id }
@@ -441,6 +441,19 @@ router.route('/user')
 				if (!user) {
 					return res.json({ success: false, message: 'Failed to find user' });
 				}
+
+				if(req.body.picture != null){
+					fs.writeFile(	
+						"pictures/users/" + req.decoded.id + "." + req.body.pictureMimeType.split('/')[1], 
+						req.body.picture, 'base64', 
+						function(err) {
+							if(err) {
+								console.log(err);
+							} 
+						}
+					);
+				}
+
 				res.json(user);
 			}).catch((err) => {
 				console.log(err);
