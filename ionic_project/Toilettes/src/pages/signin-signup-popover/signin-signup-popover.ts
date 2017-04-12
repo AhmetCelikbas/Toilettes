@@ -90,10 +90,11 @@ export class SigninSignupPopoverPage {
       (res) => {
         sendingSpinnerAlert.dismiss().then(
           ()=> {
-            if(res['success'] == true ){
+            console.log(res)
+            if(res['token'] != null ){
               window.localStorage.setItem('token', res['token']);
               this.viewCtrl.dismiss({SigninSignupFinished: true});
-            } else if (res['message'] == "This email is already user by an account." ){
+            } else if (res['success'] == false ){
               let alert = this.alertCtrl.create({
                   title: 'Création de compte',
                   subTitle: 'Cette adresse mail est déjà utilisée',
@@ -128,7 +129,7 @@ export class SigninSignupPopoverPage {
       (res) => {
         sendingSpinnerAlert.dismiss().then(
           ()=> {
-            if(res['success'] == true ){
+            if(res['token'] != null ){
               window.localStorage.setItem('token', res['token']);
               this.viewCtrl.dismiss({SigninSignupFinished: true});
             } else if (res['success'] == false ){
